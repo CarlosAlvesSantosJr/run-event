@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS login (
+    id BIGSERIAL PRIMARY KEY,
+    usuario VARCHAR(50) NOT NULL UNIQUE,
+    senha VARCHAR(100) NOT NULL,
+    tipo_usuario VARCHAR(20) NOT NULL
+);
