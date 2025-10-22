@@ -1,5 +1,6 @@
 package com.example.runevent.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,6 +31,7 @@ public class Atleta {
 
     @NotNull
     @Past(message = "A data de nascimento deve ser no passado")
+    @JsonFormat(pattern = "dd/MM/yyyy") //deixar a data formato BR
     @Column(name = "data_nascimento", nullable = false)
     private LocalDate dataNascimento; // Tipo moderno
 
