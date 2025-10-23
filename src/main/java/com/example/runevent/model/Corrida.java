@@ -1,5 +1,6 @@
 package com.example.runevent.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
@@ -30,6 +31,7 @@ public class Corrida {
 
     @NotNull
     @Future(message = "A data da corrida deve ser no futuro")
+    @JsonFormat(pattern = "dd/MM/yyyy") //deixar a data formato BR
     @Column(name = "data_corrida", nullable = false)
     private LocalDate dataCorrida; // Tipo moderno
 

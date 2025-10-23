@@ -34,5 +34,4 @@ public class Administrador {
     @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL) // mappedBy correto
     @ToString.Exclude
     private List<Corrida> corridas;
-
 }
