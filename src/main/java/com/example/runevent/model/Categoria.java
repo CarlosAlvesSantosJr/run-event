@@ -1,39 +1,26 @@
 package com.example.runevent.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-import java.util.List;
-
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
 @Entity
 @Table(name = "categoria")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Categoria {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idCategoria;
 
-    @NotBlank
-    @Size(max = 50)
-    @Column(name = "nome_categoria", nullable = false)
-    private String nomeCategoria;
+    @Column(nullable = false, length = 50)
+    private String nome;
 
-    @Size(max = 20)
-    @Column(name = "faixa_etaria")
-    private String faixaEtaria;
-
-    @OneToMany(mappedBy = "categoria") // Não precisa de Cascade aqui, o Atleta gerencia isso
-    @ToString.Exclude
-    private List<Atleta> atletas;
-
-    @ManyToMany(mappedBy = "categorias") // Contraparte do ManyToMany em Corrida
-    @ToString.Exclude
-    private List<Corrida> corridas;
+    @Column(length = 255)
+    private String descricao;
 }

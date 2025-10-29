@@ -1,55 +1,38 @@
 package com.example.runevent.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-import java.time.LocalDate; // Alterado de Date para LocalDate
-import java.util.List;
+import java.time.LocalDate;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
 @Entity
 @Table(name = "corrida")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Corrida {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idCorrida;
 
-    @NotBlank
-    @Size(max = 100)
-    @Column(name = "nome_corrida", nullable = false)
-    private String nomeCorrida;
+    @Column(nullable = false, length = 100)
+    private String nome;
 
-    @NotNull
-    @Future(message = "A data da corrida deve ser no futuro")
-    @JsonFormat(pattern = "dd/MM/yyyy") //deixar a data formato BR
-    @Column(name = "data_corrida", nullable = false)
-    private LocalDate dataCorrida; // Tipo moderno
+    @Column(nullable = false)
+    private LocalDate data;
 
-    @ManyToOne // Adicionado relacionamento N:1 com Administrador
-    @JoinColumn(name = "administrador_id")
-    @NotNull
-    private Administrador administrador;
+    @Column(nullable = false, length = 150)
+    private String local;
 
-    @ManyToMany // Mantido o ManyToMany que você criou
-    @JoinTable(
-            name = "corrida_categoria", // Nome da tabela de junção
-            joinColumns = @JoinColumn(name = "corrida_id"),
-            inverseJoinColumns = @JoinColumn(name = "categoria_id")
-    )
-    @ToString.Exclude
-    private List<Categoria> categorias;
+    @Column(nullable = false, precision = 5, scale = 2)
+    private Double distancia;
 
-    @OneToMany(mappedBy = "corrida", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    private List<Resultado> resultados;
+    @ManyToOne
+    @JoinColumn(name = "id_adm", nullable = false)
+    private Administrador adm;
 }

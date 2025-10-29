@@ -1,55 +1,44 @@
 package com.example.runevent.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-import java.time.LocalDate; // Alterado de Date para LocalDate
-import java.util.List;
+import java.time.LocalDate;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
 @Entity
 @Table(name = "atleta")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Atleta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idAtleta;
 
-    @NotBlank
-    @Size(max = 100)
-    @Column(name = "nome", nullable = false)
+    @Column(nullable = false, length = 100)
     private String nome;
 
-    @NotNull
-    @Past(message = "A data de nascimento deve ser no passado")
-    @JsonFormat(pattern = "dd/MM/yyyy") //deixar a data formato BR
     @Column(name = "data_nascimento", nullable = false)
-    private LocalDate dataNascimento; // Tipo moderno
+    private LocalDate dataNascimento;
 
-    @NotBlank
-    @Size(max = 1)
-    @Column(name = "sexo", nullable = false)
-    private String sexo;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 10)
+    private Genero genero;
 
-    @ManyToOne
-    @JoinColumn(name = "categoria_id") // Define a coluna de junção
-    private Categoria categoria;
-
-    @OneToOne(cascade = CascadeType.ALL) // Adiciona o relacionamento 1:1 com Login
-    @JoinColumn(name = "login_id", referencedColumnName = "id")
-    @NotNull
+    @OneToOne
+    @JoinColumn(name = "id_login", unique = true)
     private Login login;
 
-    @OneToMany(mappedBy = "atleta", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    private List<Resultado> resultados;
+    @ManyToOne
+    @JoinColumn(name = "id_categoria")
+    private Categoria categoria;
+
+    public enum Genero {
+        M, F, OUTRO
+    }
 }

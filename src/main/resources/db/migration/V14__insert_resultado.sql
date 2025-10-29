@@ -1,27 +1,7 @@
--- =========================================================
--- V14__insert_resultado.sql
--- Insere resultados de atletas em corridas
--- =========================================================
-INSERT INTO resultado (tempo_prova, posicaog, posicaoc, corrida_id, atleta_id)
-SELECT '00:25:32', 1, 1, c.id, a.id
-FROM corrida c, atleta a
-WHERE c.nome_corrida = 'Corrida da Primavera' AND a.nome = 'Pedro Lima'
-  AND NOT EXISTS (SELECT 1 FROM resultado r WHERE r.corrida_id = c.id AND r.atleta_id = a.id);
-
-INSERT INTO resultado (tempo_prova, posicaog, posicaoc, corrida_id, atleta_id)
-SELECT '00:45:10', 2, 1, c.id, a.id
-FROM corrida c, atleta a
-WHERE c.nome_corrida = 'Desafio das Montanhas' AND a.nome = 'Ana Torres'
-  AND NOT EXISTS (SELECT 1 FROM resultado r WHERE r.corrida_id = c.id AND r.atleta_id = a.id);
-
-INSERT INTO resultado (tempo_prova, posicaog, posicaoc, corrida_id, atleta_id)
-SELECT '01:20:15', 3, 1, c.id, a.id
-FROM corrida c, atleta a
-WHERE c.nome_corrida = 'Maratona Cidade Azul' AND a.nome = 'Rafael Santos'
-  AND NOT EXISTS (SELECT 1 FROM resultado r WHERE r.corrida_id = c.id AND r.atleta_id = a.id);
-
-INSERT INTO resultado (tempo_prova, posicaog, posicaoc, corrida_id, atleta_id)
-SELECT '00:22:47', 1, 1, c.id, a.id
-FROM corrida c, atleta a
-WHERE c.nome_corrida = 'Corrida Solidária' AND a.nome = 'Beatriz Gomes'
-  AND NOT EXISTS (SELECT 1 FROM resultado r WHERE r.corrida_id = c.id AND r.atleta_id = a.id);
+-- Inserções Resultado
+INSERT INTO resultado (id_corrida, id_atleta, tempo, colocacao_geral, colocacao_categoria) VALUES
+  (1, 1, '00:25:30', 1, 1),
+  (1, 2, '00:27:10', 2, 1),
+  (2, 3, '00:55:45', 3, 1),
+  (3, 4, '01:10:00', 4, 1),
+  (4, 5, '00:32:15', 5, 1);
