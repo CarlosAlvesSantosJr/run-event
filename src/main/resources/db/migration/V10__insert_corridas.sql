@@ -1,23 +1,7 @@
--- =========================================================
--- V10__insert_corridas.sql
--- Insere corridas associadas a administradores
--- =========================================================
-INSERT INTO corrida (nome_corrida, data_corrida, administrador_id)
-SELECT 'Corrida da Primavera', '15-09-2025', a.id FROM administrador a
-WHERE a.nome = 'Carlos Silva'
-  AND NOT EXISTS (SELECT 1 FROM corrida c WHERE c.nome_corrida = 'Corrida da Primavera');
-
-INSERT INTO corrida (nome_corrida, data_corrida, administrador_id)
-SELECT 'Desafio das Montanhas', '01-10-2025', a.id FROM administrador a
-WHERE a.nome = 'Fernanda Souza'
-  AND NOT EXISTS (SELECT 1 FROM corrida c WHERE c.nome_corrida = 'Desafio das Montanhas');
-
-INSERT INTO corrida (nome_corrida, data_corrida, administrador_id)
-SELECT 'Maratona Cidade Azul', '10-11-2025', a.id FROM administrador a
-WHERE a.nome = 'João Pereira'
-  AND NOT EXISTS (SELECT 1 FROM corrida c WHERE c.nome_corrida = 'Maratona Cidade Azul');
-
-INSERT INTO corrida (nome_corrida, data_corrida, administrador_id)
-SELECT 'Corrida Solidária', '05-12-2025', a.id FROM administrador a
-WHERE a.nome = 'Mariana Costa'
-  AND NOT EXISTS (SELECT 1 FROM corrida c WHERE c.nome_corrida = 'Corrida Solidária');
+-- Inserções Corrida
+INSERT INTO corrida (nome, data, local, distancia, id_adm) VALUES
+    ('Corrida da Primavera', '2025-09-01', 'Parque Central', 5.00, 1),
+    ('Desafio das Montanhas', '2025-10-10', 'Serra Azul', 10.00, 2),
+    ('Maratona da Cidade', '2025-11-05', 'Centro Histórico', 42.20, 1),
+    ('Night Run', '2025-12-15', 'Orla da Praia', 7.00, 2),
+    ('Cross Country', '2026-01-20', 'Fazenda Boa Vista', 15.00, 1);

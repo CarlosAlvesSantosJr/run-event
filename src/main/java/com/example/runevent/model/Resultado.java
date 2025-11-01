@@ -1,40 +1,40 @@
 package com.example.runevent.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Positive;
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-import java.time.LocalTime; // Alterado de Time para LocalTime
+import java.time.LocalTime;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
 @Entity
 @Table(name = "resultado")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Resultado {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "tempo_prova")
-    private LocalTime tempoProva; // Tipo moderno
-
-    @Positive
-    @Column(name = "posicaog")
-    private int posicaoG;
-
-    @Positive
-    @Column(name = "posicaoc")
-    private int posicaoC;
+    private Long idResultado;
 
     @ManyToOne
-    @JoinColumn(name = "corrida_id", nullable = false) // Coluna de junção
+    @JoinColumn(name = "id_corrida", nullable = false)
     private Corrida corrida;
 
     @ManyToOne
-    @JoinColumn(name = "atleta_id", nullable = false) // Coluna de junção
+    @JoinColumn(name = "id_atleta", nullable = false)
     private Atleta atleta;
+
+    @NotNull
+    private LocalTime tempo;
+
+    @NotNull
+    private Integer colocacaoGeral;
+
+    @NotNull
+    private Integer colocacaoCategoria;
 }
