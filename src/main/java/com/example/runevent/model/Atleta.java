@@ -1,6 +1,9 @@
 package com.example.runevent.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -20,18 +23,22 @@ public class Atleta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAtleta;
 
+    @NotBlank
+    @Size(max = 100)
     @Column(nullable = false, length = 100)
     private String nome;
 
+    @NotNull
     @Column(name = "data_nascimento", nullable = false)
     private LocalDate dataNascimento;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(length = 10)
+    @Column(length = 10, nullable = false)
     private Genero genero;
 
     @OneToOne
-    @JoinColumn(name = "id_login", unique = true)
+    @JoinColumn(name = "id_login", nullable = false, unique = true)
     private Login login;
 
     @ManyToOne

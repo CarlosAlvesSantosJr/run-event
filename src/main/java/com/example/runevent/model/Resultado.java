@@ -1,6 +1,7 @@
 package com.example.runevent.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -28,7 +29,12 @@ public class Resultado {
     @JoinColumn(name = "id_atleta", nullable = false)
     private Atleta atleta;
 
+    @NotNull
     private LocalTime tempo;
+
+    @NotNull
     private Integer colocacaoGeral;
+
+    @NotNull
     private Integer colocacaoCategoria;
 }

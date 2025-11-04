@@ -4,4 +4,6 @@ INSERT INTO login (email, senha, tipo) VALUES
     ('adm2@corrida.com', '123456', 'ADM'),
     ('joao@atleta.com', 'senha123', 'ATLETA'),
     ('maria@atleta.com', 'senha123', 'ATLETA'),
-    ('carlos@atleta.com', 'senha123', 'ATLETA');
+    ('carlos@atleta.com', 'senha123', 'ATLETA'),
+    ('ana@atleta.com', 'senha123', 'ATLETA'),
+    ('pedro@atleta.com', 'senha123', 'ATLETA');

@@ -1,9 +1,7 @@
-
--- 1. Tabela LOGIN
--- ==============================================
+-- Tabela LOGIN
 CREATE TABLE login (
-    id_login INT AUTO_INCREMENT PRIMARY KEY,
+    id_login SERIAL PRIMARY KEY,
     email VARCHAR(100) NOT NULL UNIQUE,
     senha VARCHAR(100) NOT NULL,
-    tipo ENUM('ADM', 'ATLETA') NOT NULL
+    tipo VARCHAR(10) NOT NULL CHECK (tipo IN ('ADM', 'ATLETA'))
 );
