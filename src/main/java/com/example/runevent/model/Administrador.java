@@ -3,17 +3,10 @@ package com.example.runevent.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+
 
 @Entity
 @Table(name = "administrador")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Administrador {
 
     @Id
@@ -28,4 +21,37 @@ public class Administrador {
     @OneToOne
     @JoinColumn(name = "id_login", nullable = false, unique = true)
     private Login login;
+
+    public Administrador() {
+    }
+
+    public Administrador(Long idAdm, String nome, Login login) {
+        this.idAdm = idAdm;
+        this.nome = nome;
+        this.login = login;
+    }
+
+    public Long getIdAdm() {
+        return idAdm;
+    }
+
+    public void setIdAdm(Long idAdm) {
+        this.idAdm = idAdm;
+    }
+
+    public @NotBlank @Size(max = 100) String getNome() {
+        return nome;
+    }
+
+    public void setNome(@NotBlank @Size(max = 100) String nome) {
+        this.nome = nome;
+    }
+
+    public Login getLogin() {
+        return login;
+    }
+
+    public void setLogin(Login login) {
+        this.login = login;
+    }
 }
