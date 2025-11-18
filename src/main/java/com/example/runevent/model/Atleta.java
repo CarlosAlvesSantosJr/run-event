@@ -4,19 +4,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "atleta")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Atleta {
 
     @Id
@@ -47,5 +40,65 @@ public class Atleta {
 
     public enum Genero {
         M, F, OUTRO
+    }
+
+    public Atleta() {
+    }
+
+    public Atleta(Long idAtleta, String nome, LocalDate dataNascimento, Genero genero, Login login, Categoria categoria) {
+        this.idAtleta = idAtleta;
+        this.nome = nome;
+        this.dataNascimento = dataNascimento;
+        this.genero = genero;
+        this.login = login;
+        this.categoria = categoria;
+    }
+
+    public Long getIdAtleta() {
+        return idAtleta;
+    }
+
+    public void setIdAtleta(Long idAtleta) {
+        this.idAtleta = idAtleta;
+    }
+
+    public @NotBlank @Size(max = 100) String getNome() {
+        return nome;
+    }
+
+    public void setNome(@NotBlank @Size(max = 100) String nome) {
+        this.nome = nome;
+    }
+
+    public @NotNull LocalDate getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(@NotNull LocalDate dataNascimento) {
+        this.dataNascimento = dataNascimento;
+    }
+
+    public @NotNull Genero getGenero() {
+        return genero;
+    }
+
+    public void setGenero(@NotNull Genero genero) {
+        this.genero = genero;
+    }
+
+    public Login getLogin() {
+        return login;
+    }
+
+    public void setLogin(Login login) {
+        this.login = login;
+    }
+
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
     }
 }

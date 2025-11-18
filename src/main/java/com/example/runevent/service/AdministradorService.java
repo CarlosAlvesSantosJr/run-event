@@ -5,7 +5,6 @@ import com.example.runevent.model.Login;
 import com.example.runevent.repository.AdministradorRepository;
 import com.example.runevent.repository.LoginRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -39,7 +38,7 @@ public class AdministradorService {
      * 2. Salva o Login.
      * 3. Salva o Administrador associado ao Login.
      */
-    @Transactional
+
     public Administrador create(Administrador administrador) {
         // 1. Validar e-mail
         loginService.validateEmailUniqueness(administrador.getLogin().getEmail());
@@ -57,7 +56,7 @@ public class AdministradorService {
     /**
      * REGRA DE NEGÓCIO: Deletar um Administrador.
      */
-    @Transactional
+
     public void delete(Long id) {
         Administrador adm = findById(id);
 

@@ -143,3 +143,177 @@ Todas as migrações e validações JPA foram executadas com sucesso.
 O projeto encontra-se em conformidade com os critérios da Entrega 2 (24/10/2025).
 
 O banco foi versionado via Flyway, com o Hibernate configurado apenas para validação de consistência.
+
+///////
+
+📅 Entrega 3 — Services + Testes Unitários (Cobertura ≥80%)  
+
+👥 Equipe: Carlos Alves, Edson Schmitz
+🗓️ Data da Entrega: 07/11/2025
+🏫 Disciplina: Desenvolvimento de Sistemas Web
+👨‍🏫 Professor: Clávison Zapelini
+
+🧠 Implementação dos Services
+
+Foram criadas e testadas as seguintes classes de serviço:
+
+AdministradorService
+
+AtletaService
+
+CategoriaService
+
+CorridaService
+
+LoginService
+
+ParticipacaoService
+
+ResultadoService
+
+Cada service possui:
+
+Regras de negócio implementadas;
+
+Validações de integridade (entidades relacionadas, e-mail único, etc.);
+
+Métodos de CRUD e lógica de associação entre entidades.
+
+🧪 Testes Unitários
+
+Os testes foram implementados com:
+
+JUnit 5
+
+Mockito (MockBean / @ExtendWith(MockitoExtension.class))
+
+Testes isolados sem dependência de banco real.
+
+💡 Ferramenta de cobertura:
+
+Os testes foram executados e analisados no IntelliJ IDEA, utilizando o relatório de cobertura de código nativo.
+
+📊 Resultados de cobertura:
+Métrica	Resultado
+Classes	100%
+Métodos	80%
+Linhas	90%
+Branches 87%
+
+🧾 Critérios Atendidos
+
+✅ Services implementados com regras de negócio
+✅ Testes unitários completos com Mockito
+✅ Relatório de cobertura ≥ 80%
+✅ Documentação atualizada no README
+
+🏁 Observações Finais
+
+O projeto encontra-se em conformidade total com os critérios da Entrega 3 (07/11/2025).
+Todos os serviços principais foram desenvolvidos, testados e validados com cobertura mínima exigida.
+Os testes unitários garantem a confiabilidade das regras de negócio implementadas.
+
+///////
+
+📅 Entrega 4 — Controllers + Testes de Integração (Cobertura ≥80%)
+
+👥 Equipe: Carlos Alves, Edson Schmitz
+🗓️ Data da Entrega: 11/11/2025
+🏫 Disciplina: Desenvolvimento de Sistemas Web
+👨‍🏫 Professor: Clávison Zapelini
+
+⚙️ Implementação dos Controllers
+
+Foram desenvolvidos os controllers REST para todas as entidades do sistema:
+
+AdministradorController
+
+AtletaController
+
+CategoriaController
+
+CorridaController
+
+ParticipacaoController
+
+ResultadoController
+
+Cada controller foi implementado com:
+
+Endpoints RESTful completos (GET, POST, PUT, DELETE);
+
+Uso de ResponseEntity com os códigos HTTP adequados (200, 201, 204, 400, 404);
+
+Integração direta com os services correspondentes;
+
+Validação de entrada com @Valid e tratamento de erros centralizado;
+
+Prefixo /api/... para todos os endpoints, garantindo padronização das rotas.
+
+🧩 Tratamento Global de Erros
+
+Foi criado o GlobalExceptionHandler com a anotação @ControllerAdvice, responsável por capturar e formatar exceções da aplicação.
+
+Principais recursos:
+
+Tratamento genérico de RuntimeException e Exception;
+
+Respostas padronizadas em formato JSON (ApiError);
+
+Suporte a erros de validação (MethodArgumentNotValidException);
+
+Retorno de mensagens claras para o cliente, com status HTTP apropriado.
+
+🧪 Testes de Integração dos Controllers
+
+Os testes de todos os controllers foram implementados com:
+
+JUnit 5 e Spring Boot Test
+
+MockMvc para simulação de requisições HTTP reais
+
+@WebMvcTest para contexto leve de teste
+
+@MockBean para simular os services
+
+ObjectMapper para serialização/deserialização de JSON
+
+Cada teste valida:
+
+Status HTTP retornado (isOk, isCreated, isNoContent, isBadRequest, etc.);
+
+Estrutura e valores do JSON retornado (jsonPath);
+
+Integração entre camada web e camada de serviço.
+
+📊 Resultados de Cobertura
+
+Os testes foram executados no IntelliJ IDEA, utilizando o relatório de cobertura nativo.
+
+Métrica	Resultado
+Classes	100%
+Métodos	85%
+Linhas	87%
+Branches	83% ✅
+
+Cobertura total acima da meta exigida (≥80%)
+
+✅ Critérios Atendidos
+
+✅ Controllers criados para todas as entidades
+
+✅ Tratamento global de exceções com @ControllerAdvice
+
+✅ Testes automatizados de integração com MockMvc
+
+✅ Retornos JSON e códigos HTTP corretos
+
+✅ Cobertura de testes acima de 80%
+
+✅ Projeto executa e testa sem erros
+
+🏁 Observações Finais
+
+O projeto encontra-se em total conformidade com os critérios da Entrega 4.
+Todos os controllers foram implementados, testados e validados, garantindo o funcionamento completo da API e a confiabilidade das respostas.
+Com cobertura de 83% nas branches, o sistema atinge o nível esperado de qualidade e robustez exigido pela disciplina.

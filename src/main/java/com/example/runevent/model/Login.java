@@ -4,17 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+
 
 @Entity
 @Table(name = "login")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Login {
 
     @Id
@@ -39,5 +32,47 @@ public class Login {
     public enum TipoUsuario {
         ADM,
         ATLETA
+    }
+
+    public Login() {
+    }
+
+    public Login(Long idLogin, String email, String senha, TipoUsuario tipo) {
+        this.idLogin = idLogin;
+        this.email = email;
+        this.senha = senha;
+        this.tipo = tipo;
+    }
+
+    public Long getIdLogin() {
+        return idLogin;
+    }
+
+    public void setIdLogin(Long idLogin) {
+        this.idLogin = idLogin;
+    }
+
+    public @Email @NotBlank @Size(max = 100) String getEmail() {
+        return email;
+    }
+
+    public void setEmail(@Email @NotBlank @Size(max = 100) String email) {
+        this.email = email;
+    }
+
+    public @NotBlank @Size(min = 6, max = 100) String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(@NotBlank @Size(min = 6, max = 100) String senha) {
+        this.senha = senha;
+    }
+
+    public TipoUsuario getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoUsuario tipo) {
+        this.tipo = tipo;
     }
 }

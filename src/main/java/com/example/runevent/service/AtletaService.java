@@ -7,7 +7,6 @@ import com.example.runevent.repository.AtletaRepository;
 import com.example.runevent.repository.CategoriaRepository;
 import com.example.runevent.repository.LoginRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -52,7 +51,7 @@ public class AtletaService {
      * 3. Salva o Login.
      * 4. Salva o Atleta associado ao Login.
      */
-    @Transactional
+
     public Atleta create(Atleta atleta) {
         // 1. Validar e-mail
         loginService.validateEmailUniqueness(atleta.getLogin().getEmail());
@@ -79,7 +78,7 @@ public class AtletaService {
     /**
      * REGRA DE NEGÓCIO: Deletar um atleta.
      */
-    @Transactional
+
     public void delete(Long id) {
         Atleta atleta = findById(id); // Reusa a validação de existência
 
