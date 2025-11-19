@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Size;
 
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "atleta")
@@ -37,6 +39,14 @@ public class Atleta {
     @ManyToOne
     @JoinColumn(name = "id_categoria")
     private Categoria categoria;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "atleta_roles",
+            joinColumns = @JoinColumn(name = "atleta_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
     public enum Genero {
         M, F, OUTRO
@@ -100,5 +110,13 @@ public class Atleta {
 
     public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }
