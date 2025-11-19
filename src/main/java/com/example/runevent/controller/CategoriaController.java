@@ -3,6 +3,8 @@ package com.example.runevent.controller;
 import com.example.runevent.dto.CategoriaDTO;
 import com.example.runevent.model.Categoria;
 import com.example.runevent.service.CategoriaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +24,26 @@ public class CategoriaController {
     }
 
     @GetMapping
+    @Operation(
+            summary = "Listar administradores",
+            description = "Retorna todos os administradores cadastrados",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
+            }
+    )
     public ResponseEntity<List<Categoria>> findAll() {
         return ResponseEntity.ok(categoriaService.findAll());
     }
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Buscar administrador por ID",
+            description = "Retorna os dados de um administrador específico",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Administrador encontrado"),
+                    @ApiResponse(responseCode = "404", description = "Administrador não encontrado")
+            }
+    )
     public ResponseEntity<?> findById(@PathVariable Long id) {
         if (id <= 0) {
             return ResponseEntity.badRequest()
@@ -36,6 +53,13 @@ public class CategoriaController {
     }
 
     @PostMapping
+    @Operation(
+            summary = "Criar administrador",
+            description = "Cadastra um novo administrador no sistema",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Administrador criado com sucesso")
+            }
+    )
     public ResponseEntity<Categoria> create(@Valid @RequestBody CategoriaDTO dto) {
         Categoria c = new Categoria();
         c.setNome(dto.getNome());
@@ -53,6 +77,14 @@ public class CategoriaController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Excluir administrador",
+            description = "Remove um administrador do sistema",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Administrador removido com sucesso"),
+                    @ApiResponse(responseCode = "404", description = "Administrador não encontrado")
+            }
+    )
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         categoriaService.delete(id);
         return ResponseEntity.noContent().build();

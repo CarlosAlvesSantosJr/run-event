@@ -2,6 +2,8 @@ package com.example.runevent.controller;
 
 import com.example.runevent.model.Resultado;
 import com.example.runevent.service.ResultadoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,13 @@ public class ResultadoController {
     }
 
     @PostMapping
+    @Operation(
+            summary = "Registrar resultado",
+            description = "Associa um resultado a um atleta em uma corrida",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Resultado registrado com sucesso")
+            }
+    )
     public ResponseEntity<Resultado> create(@Valid @RequestBody Resultado resultado,
                                             @RequestParam Long idAtleta,
                                             @RequestParam Long idCorrida) {
@@ -28,6 +37,13 @@ public class ResultadoController {
     }
 
     @GetMapping("/corrida/{idCorrida}")
+    @Operation(
+            summary = "Listar resultados por corrida",
+            description = "Retorna os resultados de uma corrida específica",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Resultados encontrados")
+            }
+    )
     public ResponseEntity<List<Resultado>> findByCorrida(@PathVariable Long idCorrida) {
         return ResponseEntity.ok(resultadoService.findByCorrida(idCorrida));
     }

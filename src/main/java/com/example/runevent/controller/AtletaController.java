@@ -6,6 +6,8 @@ import com.example.runevent.model.Atleta;
 import com.example.runevent.model.Categoria;
 import com.example.runevent.model.Login;
 import com.example.runevent.service.AtletaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +27,26 @@ public class AtletaController {
     }
 
     @GetMapping
+    @Operation(
+            summary = "Listar atletas",
+            description = "Retorna todos os atletas cadastrados",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
+            }
+    )
     public ResponseEntity<List<Atleta>> findAll() {
         return ResponseEntity.ok(atletaService.findAll());
     }
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Buscar atleta por ID",
+            description = "Retorna os dados de um atleta específico",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Atleta encontrado"),
+                    @ApiResponse(responseCode = "404", description = "Atleta não encontrado")
+            }
+    )
     public ResponseEntity<?> findById(@PathVariable Long id) {
         // 👇 ADICIONADO: checagem simples que cria outro "branch"
         if (id <= 0) {
@@ -41,6 +58,13 @@ public class AtletaController {
     }
 
     @PostMapping
+    @Operation(
+            summary = "Criar atleta",
+            description = "Cadastra um novo atleta no sistema",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Atleta criado com sucesso")
+            }
+    )
     public ResponseEntity<Atleta> create(@Valid @RequestBody AtletaCreateDTO dto) {
         Atleta atleta = new Atleta();
         atleta.setNome(dto.getNome());
@@ -64,6 +88,14 @@ public class AtletaController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Excluir atleta",
+            description = "Remove um atleta do sistema",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Atleta removido com sucesso"),
+                    @ApiResponse(responseCode = "404", description = "Atleta não encontrado")
+            }
+    )
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         atletaService.delete(id);
         return ResponseEntity.noContent().build();
