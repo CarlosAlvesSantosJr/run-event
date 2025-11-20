@@ -3,6 +3,9 @@ package com.example.runevent.controller;
 import com.example.runevent.dto.AuthRequestDto;
 import com.example.runevent.dto.AuthResponseDto;
 import com.example.runevent.security.JwtUtil; // ajuste o package se o seu JwtUtil estiver em outro pacote
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,27 +27,28 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(
+            summary = "Autenticação do usuário",
+            description = "Valida e-mail e senha, retornando um token JWT para acesso ao sistema."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Login efetuado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Credenciais inválidas"),
+            @ApiResponse(responseCode = "500", description = "Erro ao autenticar")
+    })
     public ResponseEntity<?> login(@RequestBody AuthRequestDto loginRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(
+            Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getEmail(),
                             loginRequest.getSenha()
                     )
             );
 
-            Object principal = authentication.getPrincipal();
-            if (!(principal instanceof UserDetails)) {
-                return ResponseEntity.status(500).body("Erro interno ao obter detalhes do usuário.");
-            }
-            UserDetails userDetails = (UserDetails) principal;
+            UserDetails user = (UserDetails) auth.getPrincipal();
+            String token = jwtUtil.generateToken(user);
 
-            String token = jwtUtil.generateToken(userDetails);
-
-            AuthResponseDto response = new AuthResponseDto();
-            response.setToken(token);
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(new AuthResponseDto(token));
 
         } catch (AuthenticationException e) {
             return ResponseEntity.status(401).body("Login ou senha inválidos");
