@@ -1,4 +1,3 @@
-
 package com.example.runevent.config;
 
 import org.springframework.context.annotation.Configuration;

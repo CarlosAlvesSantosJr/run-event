@@ -67,6 +67,24 @@ public class CorridaController {
         return ResponseEntity.created(URI.create("/api/corridas/" + criado.getIdCorrida())).body(criado);
     }
 
+    @PutMapping("/{id}")
+    @Operation(
+            summary = "Atualizar corrida",
+            description = "Substitui completamente os dados de uma corrida existente",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Corrida atualizada com sucesso"),
+                    @ApiResponse(responseCode = "404", description = "Corrida não encontrada")
+            }
+    )
+    public ResponseEntity<Corrida> update(@PathVariable Long id,
+                                          @Valid @RequestBody CorridaCreateDTO dto,
+                                          @RequestParam Long idAdm) {
+        // Note: Mantemos o idAdm se a sua regra de negócio exigir que a atualização
+        // também seja feita por um administrador identificado.
+        Corrida corridaAtualizada = corridaService.update(id, dto, idAdm);
+        return ResponseEntity.ok(corridaAtualizada);
+    }
+
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Excluir corrida",

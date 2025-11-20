@@ -1,11 +1,13 @@
 package com.example.runevent.service;
 
+import com.example.runevent.dto.AtletaCreateDTO;
 import com.example.runevent.model.Atleta;
 import com.example.runevent.model.Categoria;
 import com.example.runevent.model.Login;
 import com.example.runevent.repository.AtletaRepository;
 import com.example.runevent.repository.CategoriaRepository;
 import com.example.runevent.repository.LoginRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -75,55 +77,34 @@ public class AtletaService {
         return atletaRepository.save(atleta);
     }
 
-    public Atleta update(Long id, Atleta atletaAtualizado) {
-        // 1. Buscar atleta existente
-        Atleta existente = findById(id);
+    // Exemplo conceitual no AtletaService
+    public Atleta update(Long id, AtletaCreateDTO dto) {
+        // 1. Encontre o atleta existente (ou lance 404)
+        Atleta atletaExistente = atletaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Atleta não encontrado"));
 
-        // 2. Atualizar campos básicos
-        existente.setNome(atletaAtualizado.getNome());
-        existente.setDataNascimento(atletaAtualizado.getDataNascimento());
-        existente.setGenero(atletaAtualizado.getGenero());
+        // 2. Aplique as modificações do DTO ao objeto existente
+        atletaExistente.setNome(dto.getNome());
+        atletaExistente.setDataNascimento(dto.getDataNascimento());
+        atletaExistente.setGenero(dto.getGenero());
 
-        // 3. Atualizar categoria se enviada
-        if (atletaAtualizado.getCategoria() != null &&
-                atletaAtualizado.getCategoria().getIdCategoria() != null) {
+        // Atualiza Login (o objeto Login precisa ser buscado ou atualizado aqui)
+        Login loginExistente = atletaExistente.getLogin();
+        loginExistente.setEmail(dto.getLogin().getEmail());
+        loginExistente.setSenha(dto.getLogin().getSenha()); // Cuidado com hash de senha!
 
-            Long idCategoria = atletaAtualizado.getCategoria().getIdCategoria();
-
-            Categoria categoria = categoriaRepository.findById(idCategoria)
-                    .orElseThrow(() -> new RuntimeException("Categoria não encontrada. ID: " + idCategoria));
-
-            existente.setCategoria(categoria);
+        // Atualiza Categoria (busca e atribui a Categoria se o ID for fornecido)
+        if (dto.getIdCategoria() != null) {
+            Categoria categoria = categoriaRepository.findById(dto.getIdCategoria())
+                    .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+            atletaExistente.setCategoria(categoria);
+        } else {
+            atletaExistente.setCategoria(null); // Remove a categoria se o ID for nulo, dependendo da sua regra.
         }
 
-        // 4. Atualizar roles (ManyToMany)
-        if (atletaAtualizado.getRoles() != null) {
-            existente.getRoles().clear();
-            existente.getRoles().addAll(atletaAtualizado.getRoles());
-        }
-
-        // 5. Atualizar Login
-        Login loginExistente = existente.getLogin();
-        Login loginNovo = atletaAtualizado.getLogin();
-
-        if (loginNovo != null) {
-
-            // Se o email foi alterado → validar unicidade
-            if (!loginExistente.getEmail().equals(loginNovo.getEmail())) {
-                loginService.validateEmailUniqueness(loginNovo.getEmail());
-            }
-
-            loginExistente.setEmail(loginNovo.getEmail());
-            loginExistente.setSenha(loginNovo.getSenha());
-            loginExistente.setTipo(Login.TipoUsuario.ATLETA); // força tipo ATLETA
-
-            loginRepository.save(loginExistente);
-        }
-
-        // 6. Salvar atleta no banco
-        return atletaRepository.save(existente);
+        // 3. Salve e retorne
+        return atletaRepository.save(atletaExistente);
     }
-
 
     /**
      * REGRA DE NEGÓCIO: Deletar um atleta.
