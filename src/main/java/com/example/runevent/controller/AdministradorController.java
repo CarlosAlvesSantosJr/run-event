@@ -5,6 +5,8 @@ import com.example.runevent.dto.LoginDTO;
 import com.example.runevent.model.Administrador;
 import com.example.runevent.model.Login;
 import com.example.runevent.service.AdministradorService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +46,21 @@ public class AdministradorController {
 
         Administrador criado = administradorService.create(adm);
         return ResponseEntity.created(URI.create("/api/administradores/" + criado.getIdAdm())).body(criado);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(
+            summary = "Atualizar administrador",
+            description = "Substitui completamente os dados de um administrador existente",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Administrador atualizado com sucesso"),
+                    @ApiResponse(responseCode = "404", description = "Administrador não encontrado")
+            }
+    )
+    public ResponseEntity<Administrador> update(@PathVariable Long id,
+                                                @Valid @RequestBody AdministradorCreateDTO dto) {
+        Administrador administradorAtualizado = administradorService.update(id, dto);
+        return ResponseEntity.ok(administradorAtualizado);
     }
 
     @DeleteMapping("/{id}")

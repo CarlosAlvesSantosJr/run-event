@@ -1,11 +1,13 @@
 package com.example.runevent.service;
 
+import com.example.runevent.dto.AtletaCreateDTO;
 import com.example.runevent.model.Atleta;
 import com.example.runevent.model.Categoria;
 import com.example.runevent.model.Login;
 import com.example.runevent.repository.AtletaRepository;
 import com.example.runevent.repository.CategoriaRepository;
 import com.example.runevent.repository.LoginRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -73,6 +75,35 @@ public class AtletaService {
         // 4. Salvar o Atleta
         atleta.setLogin(novoLogin);
         return atletaRepository.save(atleta);
+    }
+
+    // Exemplo conceitual no AtletaService
+    public Atleta update(Long id, AtletaCreateDTO dto) {
+        // 1. Encontre o atleta existente (ou lance 404)
+        Atleta atletaExistente = atletaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Atleta não encontrado"));
+
+        // 2. Aplique as modificações do DTO ao objeto existente
+        atletaExistente.setNome(dto.getNome());
+        atletaExistente.setDataNascimento(dto.getDataNascimento());
+        atletaExistente.setGenero(dto.getGenero());
+
+        // Atualiza Login (o objeto Login precisa ser buscado ou atualizado aqui)
+        Login loginExistente = atletaExistente.getLogin();
+        loginExistente.setEmail(dto.getLogin().getEmail());
+        loginExistente.setSenha(dto.getLogin().getSenha()); // Cuidado com hash de senha!
+
+        // Atualiza Categoria (busca e atribui a Categoria se o ID for fornecido)
+        if (dto.getIdCategoria() != null) {
+            Categoria categoria = categoriaRepository.findById(dto.getIdCategoria())
+                    .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+            atletaExistente.setCategoria(categoria);
+        } else {
+            atletaExistente.setCategoria(null); // Remove a categoria se o ID for nulo, dependendo da sua regra.
+        }
+
+        // 3. Salve e retorne
+        return atletaRepository.save(atletaExistente);
     }
 
     /**

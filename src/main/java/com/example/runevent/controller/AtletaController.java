@@ -87,6 +87,20 @@ public class AtletaController {
         return ResponseEntity.created(URI.create("/api/atletas/" + criado.getIdAtleta())).body(criado);
     }
 
+    @PutMapping("/{id}")
+    @Operation(
+            summary = "Atualizar atleta",
+            description = "Substitui completamente os dados de um atleta existente",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Atleta atualizado com sucesso"),
+                    @ApiResponse(responseCode = "404", description = "Atleta não encontrado")
+            }
+    )
+    public ResponseEntity<Atleta> update(@PathVariable Long id, @Valid @RequestBody AtletaCreateDTO dto) {
+        Atleta atletaAtualizado = atletaService.update(id, dto); // Você precisará adaptar o service
+        return ResponseEntity.ok(atletaAtualizado);
+    }
+
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Excluir atleta",
