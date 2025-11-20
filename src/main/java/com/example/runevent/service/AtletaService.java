@@ -75,6 +75,56 @@ public class AtletaService {
         return atletaRepository.save(atleta);
     }
 
+    public Atleta update(Long id, Atleta atletaAtualizado) {
+        // 1. Buscar atleta existente
+        Atleta existente = findById(id);
+
+        // 2. Atualizar campos básicos
+        existente.setNome(atletaAtualizado.getNome());
+        existente.setDataNascimento(atletaAtualizado.getDataNascimento());
+        existente.setGenero(atletaAtualizado.getGenero());
+
+        // 3. Atualizar categoria se enviada
+        if (atletaAtualizado.getCategoria() != null &&
+                atletaAtualizado.getCategoria().getIdCategoria() != null) {
+
+            Long idCategoria = atletaAtualizado.getCategoria().getIdCategoria();
+
+            Categoria categoria = categoriaRepository.findById(idCategoria)
+                    .orElseThrow(() -> new RuntimeException("Categoria não encontrada. ID: " + idCategoria));
+
+            existente.setCategoria(categoria);
+        }
+
+        // 4. Atualizar roles (ManyToMany)
+        if (atletaAtualizado.getRoles() != null) {
+            existente.getRoles().clear();
+            existente.getRoles().addAll(atletaAtualizado.getRoles());
+        }
+
+        // 5. Atualizar Login
+        Login loginExistente = existente.getLogin();
+        Login loginNovo = atletaAtualizado.getLogin();
+
+        if (loginNovo != null) {
+
+            // Se o email foi alterado → validar unicidade
+            if (!loginExistente.getEmail().equals(loginNovo.getEmail())) {
+                loginService.validateEmailUniqueness(loginNovo.getEmail());
+            }
+
+            loginExistente.setEmail(loginNovo.getEmail());
+            loginExistente.setSenha(loginNovo.getSenha());
+            loginExistente.setTipo(Login.TipoUsuario.ATLETA); // força tipo ATLETA
+
+            loginRepository.save(loginExistente);
+        }
+
+        // 6. Salvar atleta no banco
+        return atletaRepository.save(existente);
+    }
+
+
     /**
      * REGRA DE NEGÓCIO: Deletar um atleta.
      */

@@ -53,6 +53,36 @@ public class AdministradorService {
         return administradorRepository.save(administrador);
     }
 
+    public Administrador update(Long id, Administrador adminAtualizado) {
+        // 1. Buscar administrador existente
+        Administrador existente = findById(id);
+
+        // 2. Atualizar nome
+        existente.setNome(adminAtualizado.getNome());
+
+        // 3. Atualizar Login
+        Login loginExistente = existente.getLogin();
+        Login loginNovo = adminAtualizado.getLogin();
+
+        if (loginNovo != null) {
+
+            // Validar se e-mail foi alterado
+            if (!loginExistente.getEmail().equals(loginNovo.getEmail())) {
+                loginService.validateEmailUniqueness(loginNovo.getEmail());
+            }
+
+            loginExistente.setEmail(loginNovo.getEmail());
+            loginExistente.setSenha(loginNovo.getSenha());
+            loginExistente.setTipo(Login.TipoUsuario.ADM); // mantém o tipo ADM
+
+            loginRepository.save(loginExistente);
+        }
+
+        // 4. Salvar administrador atualizado
+        return administradorRepository.save(existente);
+    }
+
+
     /**
      * REGRA DE NEGÓCIO: Deletar um Administrador.
      */
