@@ -5,7 +5,6 @@ import com.example.runevent.model.Corrida;
 import com.example.runevent.service.CorridaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +25,11 @@ public class CorridaController {
     @GetMapping
     @Operation(
             summary = "Listar corridas",
-            description = "Retorna todas as corridas cadastradas."
+            description = "Retorna todas as corridas cadastradas",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
+            }
     )
-    @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     public ResponseEntity<List<Corrida>> findAll() {
         return ResponseEntity.ok(corridaService.findAll());
     }
@@ -36,32 +37,32 @@ public class CorridaController {
     @GetMapping("/{id}")
     @Operation(
             summary = "Buscar corrida por ID",
-            description = "Retorna os dados de uma corrida específica."
+            description = "Retorna os dados de uma corrida específica",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Corrida encontrada"),
+                    @ApiResponse(responseCode = "404", description = "Corrida não encontrada")
+            }
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Corrida encontrada"),
-            @ApiResponse(responseCode = "404", description = "Corrida não encontrada")
-    })
     public ResponseEntity<Corrida> findById(@PathVariable Long id) {
         return ResponseEntity.ok(corridaService.findById(id));
     }
 
+    // Exige idAdm como request param
     @PostMapping
     @Operation(
             summary = "Criar corrida",
-            description = "Registra uma nova corrida no sistema."
+            description = "Registra uma nova corrida no sistema",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Corrida criada com sucesso")
+            }
     )
-    @ApiResponse(responseCode = "201", description = "Corrida criada com sucesso")
-    public ResponseEntity<Corrida> create(
-            @Valid @RequestBody CorridaCreateDTO dto,
-            @RequestParam Long idAdm) {
-
+    public ResponseEntity<Corrida> create(@Valid @RequestBody CorridaCreateDTO dto,
+                                          @RequestParam Long idAdm) {
         Corrida corrida = new Corrida();
         corrida.setNome(dto.getNome());
         corrida.setData(dto.getData());
         corrida.setLocal(dto.getLocal());
         corrida.setDistancia(dto.getDistancia());
-
         Corrida criado = corridaService.create(corrida, idAdm);
         return ResponseEntity.created(URI.create("/api/corridas/" + criado.getIdCorrida())).body(criado);
     }
@@ -69,25 +70,30 @@ public class CorridaController {
     @PutMapping("/{id}")
     @Operation(
             summary = "Atualizar corrida",
-            description = "Atualiza os dados de uma corrida existente."
+            description = "Substitui completamente os dados de uma corrida existente",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Corrida atualizada com sucesso"),
+                    @ApiResponse(responseCode = "404", description = "Corrida não encontrada")
+            }
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Corrida atualizada com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Corrida não encontrada")
-    })
-    public ResponseEntity<Corrida> update(@PathVariable Long id, @Valid @RequestBody Corrida dto) {
-        return ResponseEntity.ok(corridaService.update(id, dto));
+    public ResponseEntity<Corrida> update(@PathVariable Long id,
+                                          @Valid @RequestBody CorridaCreateDTO dto,
+                                          @RequestParam Long idAdm) {
+        // Note: Mantemos o idAdm se a sua regra de negócio exigir que a atualização
+        // também seja feita por um administrador identificado.
+        Corrida corridaAtualizada = corridaService.update(id, dto, idAdm);
+        return ResponseEntity.ok(corridaAtualizada);
     }
 
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Excluir corrida",
-            description = "Remove uma corrida do sistema."
+            description = "Remove uma corrida do sistema",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Corrida removida com sucesso"),
+                    @ApiResponse(responseCode = "404", description = "Corrida não encontrada")
+            }
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Corrida removida com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Corrida não encontrada")
-    })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         corridaService.delete(id);
         return ResponseEntity.noContent().build();

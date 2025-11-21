@@ -1,4 +1,3 @@
-
 package com.example.runevent.dto;
 
 import jakarta.validation.constraints.NotBlank;

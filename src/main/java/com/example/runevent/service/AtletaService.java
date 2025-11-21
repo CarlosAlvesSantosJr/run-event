@@ -1,11 +1,14 @@
 package com.example.runevent.service;
 
+import com.example.runevent.dto.AtletaCreateDTO;
 import com.example.runevent.model.Atleta;
 import com.example.runevent.model.Categoria;
 import com.example.runevent.model.Login;
 import com.example.runevent.repository.AtletaRepository;
 import com.example.runevent.repository.CategoriaRepository;
 import com.example.runevent.repository.LoginRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,15 +20,18 @@ public class AtletaService {
     private final LoginRepository loginRepository;
     private final CategoriaRepository categoriaRepository;
     private final LoginService loginService; // Usando o serviço de validação
+    private final PasswordEncoder passwordEncoder;
 
     public AtletaService(AtletaRepository atletaRepository,
                          LoginRepository loginRepository,
                          CategoriaRepository categoriaRepository,
-                         LoginService loginService) {
+                         LoginService loginService,
+                         PasswordEncoder passwordEncoder) {
         this.atletaRepository = atletaRepository;
         this.loginRepository = loginRepository;
         this.categoriaRepository = categoriaRepository;
         this.loginService = loginService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -67,7 +73,12 @@ public class AtletaService {
         // 3. Configurar e salvar o Login
         Login novoLogin = atleta.getLogin();
         novoLogin.setTipo(Login.TipoUsuario.ATLETA);
-        // (Lembrete: criptografar a senha na Entrega de Segurança JWT)
+
+        // 🚨 AÇÃO CRÍTICA: Criptografar a senha antes de salvar no banco!
+        String senhaEmTextoSimples = novoLogin.getSenha();
+        String senhaCriptografada = passwordEncoder.encode(senhaEmTextoSimples);
+        novoLogin.setSenha(senhaCriptografada); // Seta a senha criptografada
+
         loginRepository.save(novoLogin);
 
         // 4. Salvar o Atleta
@@ -75,55 +86,44 @@ public class AtletaService {
         return atletaRepository.save(atleta);
     }
 
-    public Atleta update(Long id, Atleta atletaAtualizado) {
-        // 1. Buscar atleta existente
-        Atleta existente = findById(id);
+    // Exemplo conceitual no AtletaService
+    public Atleta update(Long id, AtletaCreateDTO dto) {
+        // 1. Encontre o atleta existente (ou lance 404)
+        Atleta atletaExistente = atletaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Atleta não encontrado"));
 
-        // 2. Atualizar campos básicos
-        existente.setNome(atletaAtualizado.getNome());
-        existente.setDataNascimento(atletaAtualizado.getDataNascimento());
-        existente.setGenero(atletaAtualizado.getGenero());
+        // 2. Aplique as modificações do DTO ao objeto existente
+        atletaExistente.setNome(dto.getNome());
+        atletaExistente.setDataNascimento(dto.getDataNascimento());
+        atletaExistente.setGenero(dto.getGenero());
 
-        // 3. Atualizar categoria se enviada
-        if (atletaAtualizado.getCategoria() != null &&
-                atletaAtualizado.getCategoria().getIdCategoria() != null) {
+        // --- Atualização do Login ---
+        Login loginExistente = atletaExistente.getLogin();
 
-            Long idCategoria = atletaAtualizado.getCategoria().getIdCategoria();
+        // Atualiza o email, pois ele não requer criptografia
+        loginExistente.setEmail(dto.getLogin().getEmail());
 
-            Categoria categoria = categoriaRepository.findById(idCategoria)
-                    .orElseThrow(() -> new RuntimeException("Categoria não encontrada. ID: " + idCategoria));
+        // ✅ CORREÇÃO APLICADA: Criptografa a senha SOMENTE se ela foi alterada (não for nula ou vazia)
+        String novaSenha = dto.getLogin().getSenha();
+        if (novaSenha != null && !novaSenha.isEmpty()) {
+            String senhaCriptografada = passwordEncoder.encode(novaSenha);
+            loginExistente.setSenha(senhaCriptografada);
+        }
+        // Se a novaSenha for nula ou vazia, a senha antiga (e criptografada) é mantida!
 
-            existente.setCategoria(categoria);
+        // --- Atualização da Categoria ---
+        // Atualiza Categoria (busca e atribui a Categoria se o ID for fornecido)
+        if (dto.getIdCategoria() != null) {
+            Categoria categoria = categoriaRepository.findById(dto.getIdCategoria())
+                    .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+            atletaExistente.setCategoria(categoria);
+        } else {
+            atletaExistente.setCategoria(null); // Remove a categoria se o ID for nulo, dependendo da sua regra.
         }
 
-        // 4. Atualizar roles (ManyToMany)
-        if (atletaAtualizado.getRoles() != null) {
-            existente.getRoles().clear();
-            existente.getRoles().addAll(atletaAtualizado.getRoles());
-        }
-
-        // 5. Atualizar Login
-        Login loginExistente = existente.getLogin();
-        Login loginNovo = atletaAtualizado.getLogin();
-
-        if (loginNovo != null) {
-
-            // Se o email foi alterado → validar unicidade
-            if (!loginExistente.getEmail().equals(loginNovo.getEmail())) {
-                loginService.validateEmailUniqueness(loginNovo.getEmail());
-            }
-
-            loginExistente.setEmail(loginNovo.getEmail());
-            loginExistente.setSenha(loginNovo.getSenha());
-            loginExistente.setTipo(Login.TipoUsuario.ATLETA); // força tipo ATLETA
-
-            loginRepository.save(loginExistente);
-        }
-
-        // 6. Salvar atleta no banco
-        return atletaRepository.save(existente);
+        // 3. Salve e retorne (o Hibernate salva loginExistente via cascade ou implicitamente)
+        return atletaRepository.save(atletaExistente);
     }
-
 
     /**
      * REGRA DE NEGÓCIO: Deletar um atleta.
