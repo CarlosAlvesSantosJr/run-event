@@ -3,6 +3,7 @@ package com.example.runevent.service;
 import com.example.runevent.dto.CorridaCreateDTO;
 import com.example.runevent.model.Administrador;
 import com.example.runevent.model.Corrida;
+import com.example.runevent.repository.AdministradorRepository;
 import com.example.runevent.repository.CorridaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -14,10 +15,12 @@ public class CorridaService {
 
     private final CorridaRepository corridaRepository;
     private final AdministradorService administradorService;
+    private final AdministradorRepository administradorRepository;
 
-    public CorridaService(CorridaRepository corridaRepository, AdministradorService administradorService) {
+    public CorridaService(CorridaRepository corridaRepository, AdministradorService administradorService, AdministradorRepository administradorRepository) {
         this.corridaRepository = corridaRepository;
         this.administradorService = administradorService;
+        this.administradorRepository = administradorRepository;
     }
 
     public Corrida findById(Long id) {
@@ -45,6 +48,30 @@ public class CorridaService {
         // 3. Salva a corrida
         return corridaRepository.save(corrida);
     }
+        // Atualiza nome, data, local e distancia
+    public Corrida update(Long id, Corrida corridaAtualizada) {
+        Corrida existente = corridaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Corrida não encontrada. ID: " + id));
+
+        existente.setNome(corridaAtualizada.getNome());
+        existente.setData(corridaAtualizada.getData());
+        existente.setLocal(corridaAtualizada.getLocal());
+        existente.setDistancia(corridaAtualizada.getDistancia());
+
+        if (corridaAtualizada.getAdministrador() != null &&
+                corridaAtualizada.getAdministrador().getIdAdm() != null) {
+
+            Long idAdm = corridaAtualizada.getAdministrador().getIdAdm();
+
+            Administrador adm = administradorRepository.findById(idAdm)
+                    .orElseThrow(() -> new RuntimeException("Administrador não encontrado. ID: " + idAdm));
+
+            existente.setAdministrador(adm);
+        }
+
+        return corridaRepository.save(existente);
+    }
+
 
     public void delete(Long id) {
         Corrida corrida = findById(id);

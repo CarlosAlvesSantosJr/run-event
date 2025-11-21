@@ -1,3 +1,4 @@
+
 package com.example.runevent.model;
 
 import jakarta.persistence.*;
