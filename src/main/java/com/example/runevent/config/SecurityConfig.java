@@ -2,17 +2,20 @@ package com.example.runevent.config;
 
 import com.example.runevent.repository.AtletaRepository;
 import com.example.runevent.security.JwtAuthFilter;
+import com.example.runevent.security.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final AtletaRepository atletaRepository;
@@ -34,26 +38,32 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+    public JwtAuthFilter jwtAuthenticationFilter(UserDetailsService userDetailsService, JwtUtil jwtUtil) {
+        return new JwtAuthFilter(userDetailsService, jwtUtil);
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthenticationFilter) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/atletas").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/atletas").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/atletas/**").hasAnyRole("ADMIN", "USER")
-                        .requestMatchers(HttpMethod.PUT, "/atletas/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/atletas/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/atletas**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/atletas**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/atletas**").hasRole("ADMIN")
 
                         // coloque aqui os seus outros controllers também
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -72,7 +82,7 @@ public class SecurityConfig {
                     String email = atleta.getLogin().getEmail();
                     String senha = atleta.getLogin().getSenha();
 
-                    return new org.springframework.security.core.userdetails.User(
+                    return new User(
                             email,
                             senha,
                             authorities
@@ -85,4 +95,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }

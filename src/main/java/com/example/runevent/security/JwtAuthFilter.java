@@ -36,13 +36,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             try {
                 username = jwtUtil.extractUsername(token);
             } catch (Exception ex) {
-                // token inválido -> apenas não autentica (pode logar se quiser)
+                throw new IllegalArgumentException("erro na autorização");
             }
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                if (jwtUtil.isTokenValid(token, userDetails)) {
+                if (jwtUtil.validateToken(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 

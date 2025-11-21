@@ -2,42 +2,41 @@ package com.example.runevent.controller;
 
 import com.example.runevent.dto.AuthRequestDto;
 import com.example.runevent.dto.AuthResponseDto;
-import com.example.runevent.security.JwtUtil; // ajuste o package se o seu JwtUtil estiver em outro pacote
+import com.example.runevent.security.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final UserDetailsService userDetailsService;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserDetailsService userDetailsService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequestDto loginRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(
+            authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getEmail(),
                             loginRequest.getSenha()
                     )
             );
 
-            Object principal = authentication.getPrincipal();
-            if (!(principal instanceof UserDetails)) {
-                return ResponseEntity.status(500).body("Erro interno ao obter detalhes do usuário.");
-            }
-            UserDetails userDetails = (UserDetails) principal;
+            UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
 
             String token = jwtUtil.generateToken(userDetails);
 

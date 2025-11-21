@@ -8,6 +8,7 @@ import com.example.runevent.repository.AtletaRepository;
 import com.example.runevent.repository.CategoriaRepository;
 import com.example.runevent.repository.LoginRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,15 +20,18 @@ public class AtletaService {
     private final LoginRepository loginRepository;
     private final CategoriaRepository categoriaRepository;
     private final LoginService loginService; // Usando o serviço de validação
+    private final PasswordEncoder passwordEncoder;
 
     public AtletaService(AtletaRepository atletaRepository,
                          LoginRepository loginRepository,
                          CategoriaRepository categoriaRepository,
-                         LoginService loginService) {
+                         LoginService loginService,
+                         PasswordEncoder passwordEncoder) {
         this.atletaRepository = atletaRepository;
         this.loginRepository = loginRepository;
         this.categoriaRepository = categoriaRepository;
         this.loginService = loginService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -69,7 +73,12 @@ public class AtletaService {
         // 3. Configurar e salvar o Login
         Login novoLogin = atleta.getLogin();
         novoLogin.setTipo(Login.TipoUsuario.ATLETA);
-        // (Lembrete: criptografar a senha na Entrega de Segurança JWT)
+
+        // 🚨 AÇÃO CRÍTICA: Criptografar a senha antes de salvar no banco!
+        String senhaEmTextoSimples = novoLogin.getSenha();
+        String senhaCriptografada = passwordEncoder.encode(senhaEmTextoSimples);
+        novoLogin.setSenha(senhaCriptografada); // Seta a senha criptografada
+
         loginRepository.save(novoLogin);
 
         // 4. Salvar o Atleta
@@ -88,11 +97,21 @@ public class AtletaService {
         atletaExistente.setDataNascimento(dto.getDataNascimento());
         atletaExistente.setGenero(dto.getGenero());
 
-        // Atualiza Login (o objeto Login precisa ser buscado ou atualizado aqui)
+        // --- Atualização do Login ---
         Login loginExistente = atletaExistente.getLogin();
-        loginExistente.setEmail(dto.getLogin().getEmail());
-        loginExistente.setSenha(dto.getLogin().getSenha()); // Cuidado com hash de senha!
 
+        // Atualiza o email, pois ele não requer criptografia
+        loginExistente.setEmail(dto.getLogin().getEmail());
+
+        // ✅ CORREÇÃO APLICADA: Criptografa a senha SOMENTE se ela foi alterada (não for nula ou vazia)
+        String novaSenha = dto.getLogin().getSenha();
+        if (novaSenha != null && !novaSenha.isEmpty()) {
+            String senhaCriptografada = passwordEncoder.encode(novaSenha);
+            loginExistente.setSenha(senhaCriptografada);
+        }
+        // Se a novaSenha for nula ou vazia, a senha antiga (e criptografada) é mantida!
+
+        // --- Atualização da Categoria ---
         // Atualiza Categoria (busca e atribui a Categoria se o ID for fornecido)
         if (dto.getIdCategoria() != null) {
             Categoria categoria = categoriaRepository.findById(dto.getIdCategoria())
@@ -102,7 +121,7 @@ public class AtletaService {
             atletaExistente.setCategoria(null); // Remove a categoria se o ID for nulo, dependendo da sua regra.
         }
 
-        // 3. Salve e retorne
+        // 3. Salve e retorne (o Hibernate salva loginExistente via cascade ou implicitamente)
         return atletaRepository.save(atletaExistente);
     }
 
