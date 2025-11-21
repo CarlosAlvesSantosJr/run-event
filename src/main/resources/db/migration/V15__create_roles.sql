@@ -1,0 +1,4 @@
+CREATE TABLE role (
+    id SERIAL PRIMARY KEY,
+    descricao VARCHAR(100) NOT NULL
+);
