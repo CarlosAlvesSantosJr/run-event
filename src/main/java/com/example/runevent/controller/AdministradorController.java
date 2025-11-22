@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/administradores")
 @Tag(name = "Administradores", description = "Endpoints para gerenciamento de administradores do sistema") // <--- TAG SWAGGER
