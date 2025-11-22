@@ -317,3 +317,59 @@ Cobertura total acima da meta exigida (≥80%)
 O projeto encontra-se em total conformidade com os critérios da Entrega 4.
 Todos os controllers foram implementados, testados e validados, garantindo o funcionamento completo da API e a confiabilidade das respostas.
 Com cobertura de 83% nas branches, o sistema atinge o nível esperado de qualidade e robustez exigido pela disciplina.
+--------
+21/11/2025 — Entrega 5 (documentação Swagger + versão inicial do app React Native)
+
+
+📘 Documentação da API – Swagger / OpenAPI
+
+A API do projeto RunEvent possui documentação completa utilizando Swagger (OpenAPI 3), permitindo visualizar, testar e validar todos os endpoints diretamente pelo navegador.
+
+🔗 Acesso ao Swagger UI
+
+Após iniciar a aplicação Spring Boot, acesse:
+
+http://localhost:8080/swagger-ui/index.html
+
+
+Caso esteja rodando em outro ambiente, ajuste o host/porta conforme necessário.
+
+📄 Especificação OpenAPI
+
+O arquivo de especificação é gerado automaticamente em:
+
+http://localhost:8080/v3/api-docs
+
+
+(Podendo ser utilizado para importar no Postman, Insomnia ou ferramentas de API Design.)
+
+🛠 Tecnologias Utilizadas
+
+Springdoc OpenAPI 2.x
+
+Swagger UI embutido no projeto
+
+Configuração automática com Spring Boot 3+
+
+Geração automática de documentação para Controllers, DTOs e Responses
+
+🚀 Recursos Documentados
+
+A documentação inclui:
+
+Endpoints REST de Atletas
+
+DTOs de entrada e saída
+
+Modelos de erro
+
+Parâmetros e validações
+
+Exemplos automáticos
+
+Possibilidade de testar requisições direto pela interface
+
+🔒 Autenticação (JWT)
+
+A API já está preparada para receber autenticação JWT (em implementação).
+Assim que os endpoints forem protegidos, será possível utilizar o botão Authorize no Swagger UI para inserir o token.
