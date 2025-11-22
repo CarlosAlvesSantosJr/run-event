@@ -5,6 +5,7 @@ import com.example.runevent.model.Categoria;
 import com.example.runevent.service.CategoriaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,25 +26,23 @@ public class CategoriaController {
 
     @GetMapping
     @Operation(
-            summary = "Listar administradores",
-            description = "Retorna todos os administradores cadastrados",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
-            }
+            summary = "Listar categorias",
+            description = "Retorna todas as categorias cadastradas."
     )
+    @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     public ResponseEntity<List<Categoria>> findAll() {
         return ResponseEntity.ok(categoriaService.findAll());
     }
 
     @GetMapping("/{id}")
     @Operation(
-            summary = "Buscar administrador por ID",
-            description = "Retorna os dados de um administrador específico",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Administrador encontrado"),
-                    @ApiResponse(responseCode = "404", description = "Administrador não encontrado")
-            }
+            summary = "Buscar categoria por ID",
+            description = "Retorna os dados de uma categoria específica."
     )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Categoria encontrada"),
+            @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
+    })
     public ResponseEntity<?> findById(@PathVariable Long id) {
         if (id <= 0) {
             return ResponseEntity.badRequest()
@@ -54,12 +53,10 @@ public class CategoriaController {
 
     @PostMapping
     @Operation(
-            summary = "Criar administrador",
-            description = "Cadastra um novo administrador no sistema",
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "Administrador criado com sucesso")
-            }
+            summary = "Criar categoria",
+            description = "Cadastra uma nova categoria no sistema."
     )
+    @ApiResponse(responseCode = "201", description = "Categoria criada com sucesso")
     public ResponseEntity<Categoria> create(@Valid @RequestBody CategoriaDTO dto) {
         Categoria c = new Categoria();
         c.setNome(dto.getNome());
@@ -69,6 +66,14 @@ public class CategoriaController {
     }
 
     @PutMapping("/{id}")
+    @Operation(
+            summary = "Atualizar categoria",
+            description = "Atualiza os dados de uma categoria existente."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Categoria atualizada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
+    })
     public ResponseEntity<Categoria> update(@PathVariable Long id, @Valid @RequestBody CategoriaDTO dto) {
         Categoria c = new Categoria();
         c.setNome(dto.getNome());
@@ -78,13 +83,13 @@ public class CategoriaController {
 
     @DeleteMapping("/{id}")
     @Operation(
-            summary = "Excluir administrador",
-            description = "Remove um administrador do sistema",
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "Administrador removido com sucesso"),
-                    @ApiResponse(responseCode = "404", description = "Administrador não encontrado")
-            }
+            summary = "Excluir categoria",
+            description = "Remove uma categoria do sistema."
     )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Categoria removida com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
+    })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         categoriaService.delete(id);
         return ResponseEntity.noContent().build();

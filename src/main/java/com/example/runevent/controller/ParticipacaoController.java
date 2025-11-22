@@ -22,11 +22,9 @@ public class ParticipacaoController {
     @PostMapping
     @Operation(
             summary = "Registrar participação",
-            description = "Inscreve um atleta em uma corrida",
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "Participação registrada com sucesso")
-            }
+            description = "Inscreve um atleta em uma corrida."
     )
+    @ApiResponse(responseCode = "201", description = "Participação registrada com sucesso")
     public ResponseEntity<Participacao> create(@RequestParam Long idAtleta, @RequestParam Long idCorrida) {
         Participacao nova = participacaoService.create(idAtleta, idCorrida);
         return ResponseEntity.created(URI.create("/api/participacoes")).body(nova);
@@ -35,11 +33,9 @@ public class ParticipacaoController {
     @DeleteMapping
     @Operation(
             summary = "Excluir participação",
-            description = "Remove a inscrição de um atleta em uma corrida",
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "Participação removida com sucesso")
-            }
+            description = "Remove a inscrição de um atleta em uma corrida."
     )
+    @ApiResponse(responseCode = "204", description = "Participação removida com sucesso")
     public ResponseEntity<Void> delete(@RequestParam Long idAtleta, @RequestParam Long idCorrida) {
         participacaoService.delete(idAtleta, idCorrida);
         return ResponseEntity.noContent().build();

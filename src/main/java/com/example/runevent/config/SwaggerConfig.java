@@ -16,13 +16,7 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("RunEvent API")
                         .version("v1.0")
-                        .description("Documentação da API do sistema de gerenciamento de corridas e atletas.")
-                        .contact(new Contact()
-                                .name("Equipe RunEvent")
-                                .email("contato@runevent.com"))
-                        .license(new License()
-                                .name("Apache 2.0")
-                                .url("https://www.apache.org/licenses/LICENSE-2.0"))
-                );
+                        .description("Documentação da API do sistema de gerenciamento de corridas e atletas."));
+
     }
 }
