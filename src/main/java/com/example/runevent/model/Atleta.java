@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.springframework.hateoas.RepresentationModel;
 
 
 import java.time.LocalDate;
@@ -13,7 +14,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "atleta")
-public class Atleta {
+public class Atleta extends RepresentationModel <Atleta> { // para implementar o Heteoas
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
