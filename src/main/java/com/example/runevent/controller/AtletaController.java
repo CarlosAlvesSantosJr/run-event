@@ -39,6 +39,28 @@ public class AtletaController {
         return ResponseEntity.ok(atletaService.findAll());
     }
 
+    @GetMapping("/buscar")
+    @Operation(
+            summary = "Buscar atletas por nome",
+            description = "Retorna atletas cujo nome contenha o texto pesquisado, ignorando acentos e maiúsculas/minúsculas"
+    )
+
+    //BUSCAR POR NOME ATUALIZADO
+    public ResponseEntity<List<Atleta>> findByNome(@RequestParam String nome) {
+
+        if (nome == null || nome.isBlank()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        List<Atleta> atletas = atletaService.findByNome(nome);
+
+        if (atletas.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(atletas);
+    }
+
     @GetMapping("/{id}")
     @Operation(
             summary = "Buscar atleta por ID",
@@ -48,6 +70,8 @@ public class AtletaController {
                     @ApiResponse(responseCode = "404", description = "Atleta não encontrado")
             }
     )
+
+
     public ResponseEntity<?> findById(@PathVariable Long id) {
         // 👇 ADICIONADO: checagem simples que cria outro "branch"
         if (id <= 0) {
@@ -66,6 +90,7 @@ public class AtletaController {
                     @ApiResponse(responseCode = "201", description = "Atleta criado com sucesso")
             }
     )
+
     public ResponseEntity<Atleta> create(@Valid @RequestBody AtletaCreateDTO dto) {
         Atleta atleta = new Atleta();
         atleta.setNome(dto.getNome());

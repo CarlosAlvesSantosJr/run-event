@@ -35,6 +35,30 @@ public class AtletaService {
     }
 
     /**
+     * REGRA DE NEGÓCIO: Busca atletas pelo nome (sem acentos, sem diferenciar maiúsculas/minúsculas)
+     */
+    public List<Atleta> findByNome(String nome) {
+        if (nome == null || nome.isBlank()) {
+            throw new IllegalArgumentException("O nome para pesquisa não pode ser vazio.");
+        }
+
+        // Normaliza o nome para tirar acentos e espaços desnecessários
+        String nomeNormalizado = normalizeText(nome);
+
+        return atletaRepository.searchByNome(nomeNormalizado);
+    }
+
+    /**
+     * Normaliza texto removendo acentos, espaços extras e convertendo para lower-case
+     */
+    private String normalizeText(String texto) {
+        String semAcentos = java.text.Normalizer.normalize(texto, java.text.Normalizer.Form.NFD)
+                .replaceAll("[\\p{InCombiningDiacriticalMarks}]+", "");
+
+        return semAcentos.toLowerCase().trim();
+    }
+
+    /**
      * REGRA DE NEGÓCIO: Busca um atleta pelo ID.
      * Se não encontrar, lança uma exceção.
      */
