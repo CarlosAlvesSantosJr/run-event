@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -31,6 +32,11 @@ public class ParticipacaoController {
     public ResponseEntity<Participacao> create(@RequestParam Long idAtleta, @RequestParam Long idCorrida) {
         Participacao nova = participacaoService.create(idAtleta, idCorrida);
         return ResponseEntity.created(URI.create("/api/participacoes")).body(nova);
+    }
+
+    @GetMapping("/corrida/{idCorrida}")
+    public ResponseEntity<List<Participacao>> listarPorCorrida(@PathVariable Long idCorrida) {
+        return ResponseEntity.ok(participacaoService.findByCorrida(idCorrida));
     }
 
     @DeleteMapping
