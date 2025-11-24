@@ -7,6 +7,7 @@ import com.example.runevent.model.ParticipacaoId;
 import com.example.runevent.repository.ParticipacaoRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -67,4 +68,12 @@ public class ParticipacaoService {
 
         participacaoRepository.delete(participacao);
     }
+
+    public List<Participacao> findByCorrida(Long idCorrida) {
+        return participacaoRepository.findAll()
+                .stream()
+                .filter(p -> p.getCorrida().getIdCorrida().equals(idCorrida))
+                .toList();
+    }
+
 }
