@@ -41,7 +41,6 @@ public class AdministradorController {
                     )
             }
     )
-
     public ResponseEntity<List<Administrador>> findAll() {
         return ResponseEntity.ok(administradorService.findAll());
     }
@@ -68,9 +67,7 @@ public class AdministradorController {
                     @ApiResponse(responseCode = "400", description = "Erro de validação")
             }
     )
-    public ResponseEntity<Administrador> create(
-            @Valid @org.springframework.web.bind.annotation.RequestBody AdministradorCreateDTO dto) {
-
+    public ResponseEntity<Administrador> create(@Valid @RequestBody AdministradorCreateDTO dto) {
         Administrador adm = new Administrador();
         adm.setNome(dto.getNome());
 

@@ -33,6 +33,8 @@ public class ParticipacaoController {
     }
 
     @GetMapping("/corrida/{idCorrida}")
+    @Operation(summary = "Lista participações por corrida")
+    @ApiResponse(responseCode = "200", description = "Lista de participações retornada com sucesso")
     public ResponseEntity<List<Participacao>> listarPorCorrida(@PathVariable Long idCorrida) {
         return ResponseEntity.ok(participacaoService.findByCorrida(idCorrida));
     }
