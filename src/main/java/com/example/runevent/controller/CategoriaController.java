@@ -5,6 +5,7 @@ import com.example.runevent.model.Categoria;
 import com.example.runevent.service.CategoriaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -70,6 +71,14 @@ public class CategoriaController {
     }
 
     @PutMapping("/{id}")
+    @Operation(
+            summary = "Atualizar categoria",
+            description = "Atualiza os dados de uma categoria existente."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Categoria atualizada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
+    })
     public ResponseEntity<Categoria> update(@PathVariable Long id, @Valid @RequestBody CategoriaDTO dto) {
         Categoria c = new Categoria();
         c.setNome(dto.getNome());
