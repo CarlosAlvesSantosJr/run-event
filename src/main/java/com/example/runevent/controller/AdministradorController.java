@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.net.URI;
 import java.util.List;
 
@@ -71,10 +70,11 @@ public class AdministradorController {
     public ResponseEntity<Administrador> create(@Valid @RequestBody AdministradorCreateDTO dto) {
         Administrador adm = new Administrador();
         adm.setNome(dto.getNome());
-        LoginDTO l = dto.getLogin();
+
+        LoginDTO loginDTO = dto.getLogin();
         Login login = new Login();
-        login.setEmail(l.getEmail());
-        login.setSenha(l.getSenha());
+        login.setEmail(loginDTO.getEmail());
+        login.setSenha(loginDTO.getSenha());
         adm.setLogin(login);
 
         Administrador criado = administradorService.create(adm);
@@ -90,10 +90,13 @@ public class AdministradorController {
                     @ApiResponse(responseCode = "404", description = "Administrador não encontrado")
             }
     )
-    public ResponseEntity<Administrador> update(@PathVariable Long id,
-                                                @Valid @RequestBody AdministradorCreateDTO dto) {
-        Administrador administradorAtualizado = administradorService.update(id, dto);
-        return ResponseEntity.ok(administradorAtualizado);
+
+    public ResponseEntity<Administrador> update(
+            @PathVariable Long id,
+            @Valid @org.springframework.web.bind.annotation.RequestBody AdministradorCreateDTO dto) {
+
+        Administrador atualizado = administradorService.update(id, dto);
+        return ResponseEntity.ok(atualizado);
     }
 
     @DeleteMapping("/{id}")

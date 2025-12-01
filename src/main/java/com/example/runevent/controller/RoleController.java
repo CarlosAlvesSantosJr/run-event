@@ -51,8 +51,7 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "Role não encontrada")
     })
     public ResponseEntity<RoleDto> atualizar(@PathVariable Long id, @RequestBody Role role) {
-        RoleDto roleAtualizada = roleService.atualizar(id, role);
-        return ResponseEntity.ok(roleAtualizada);
+        return ResponseEntity.ok(roleService.atualizar(id, role));
     }
 
     @DeleteMapping("/{id}")
@@ -79,10 +78,8 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "Role não encontrada")
     })
     public ResponseEntity<RoleDto> buscarPorId(@PathVariable Long id) {
-        RoleDto role = roleService.buscarPorId(id);
-        return ResponseEntity.ok(role);
+        return ResponseEntity.ok(roleService.buscarPorId(id));
     }
-
 
     @GetMapping("/buscar")
     @Operation(
@@ -91,7 +88,6 @@ public class RoleController {
     )
     @ApiResponse(responseCode = "200", description = "Role encontrada")
     public ResponseEntity<RoleDto> buscarPorNome(@RequestParam String descricao) {
-        RoleDto role = roleService.buscarPordescricao(descricao);
-        return ResponseEntity.ok(role);
+        return ResponseEntity.ok(roleService.buscarPordescricao(descricao));
     }
 }

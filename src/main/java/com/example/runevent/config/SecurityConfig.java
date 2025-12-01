@@ -39,7 +39,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthFilter jwtAuthenticationFilter(UserDetailsService userDetailsService, JwtUtil jwtUtil) {
-        return new JwtAuthFilter(userDetailsService, jwtUtil);
+               return new JwtAuthFilter(userDetailsService, jwtUtil);
     }
 
     @Bean
@@ -58,9 +58,9 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/atletas").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/atletas**").hasAnyRole("ADMIN", "USER")
-                        .requestMatchers(HttpMethod.PUT, "/api/atletas**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/atletas**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/atletas/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/atletas/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/atletas/**").hasRole("ADMIN")
 
                         // coloque aqui os seus outros controllers também
                         .anyRequest().authenticated()
