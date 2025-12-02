@@ -121,6 +121,7 @@ public class AtletaController {
                     @ApiResponse(responseCode = "200", description = "Atleta atualizado com sucesso"),
                     @ApiResponse(responseCode = "404", description = "Atleta não encontrado")
             }
+
     )
     public ResponseEntity<Atleta> update(@PathVariable Long id, @Valid @RequestBody AtletaCreateDTO dto) {
         Atleta atletaAtualizado = atletaService.update(id, dto); // Você precisará adaptar o service

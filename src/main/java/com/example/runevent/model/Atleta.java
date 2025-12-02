@@ -121,4 +121,5 @@ public class Atleta extends RepresentationModel <Atleta> { // para implementar o
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
+
 }

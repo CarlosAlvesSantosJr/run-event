@@ -114,4 +114,6 @@ public class AdministradorController {
         administradorService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+
 }
