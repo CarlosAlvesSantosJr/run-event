@@ -373,3 +373,6 @@ Possibilidade de testar requisições direto pela interface
 
 A API já está preparada para receber autenticação JWT (em implementação).
 Assim que os endpoints forem protegidos, será possível utilizar o botão Authorize no Swagger UI para inserir o token.
+
+
+Link do slide da apresentação final: https://www.canva.com/design/DAG57W8HVsU/VC8hgyvdZZnwjmEpsal4Ww/edit?utm_content=DAG57W8HVsU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
