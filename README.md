@@ -1,378 +1,141 @@
-🏃‍♂️ RunEvent — Sistema de Cadastro de Atletas Corredores
-📅 Entrega 2 — Mapeamento de Entidades + Scripts Iniciais Flyway
+# RunEvent
 
-Equipe: Carlos Alves, Edson Schmitz
-🗓️ Data da entrega: 24/10/2025
-🏫 Disciplina: Desenvolvimento de Sistemas Web
-👨‍🏫 Professor: Clávison Zapelini
+API REST para gerenciamento de corridas de rua: cadastro de atletas, organizadores (administradores), categorias, corridas, inscrições e resultados.
 
-📘 Descrição do Projeto
+## Stack
 
-O RunEvent é um sistema desenvolvido em Spring Boot (Java 21) para o gerenciamento de corridas de rua, com foco em cadastro de atletas, administradores, categorias, corridas e resultados.
+- Java 21 + Spring Boot 3.2
+- Spring Web, Spring Data JPA (Hibernate)
+- Spring Security com autenticação JWT (jjwt)
+- PostgreSQL + Flyway para versionamento do schema
+- springdoc-openapi (Swagger UI)
+- JUnit 5, Mockito e MockMvc nos testes
 
-Nesta etapa, foi implementado o mapeamento das entidades JPA e os scripts iniciais do Flyway, responsáveis por criar automaticamente o schema e as tabelas no banco de dados PostgreSQL.
+## Arquitetura
 
-🧱 Estrutura das Entidades (JPA)
-Entidade	Descrição
-Administrador	Representa o organizador de corridas. Relaciona-se 1:1 com Login e 1:N com Corrida.
-Atleta	Representa o participante. Possui 1:1 com Login, N:1 com Categoria e 1:N com Resultado.
-Categoria	Define a faixa etária dos atletas. Relaciona-se com Atleta e Corrida.
-Corrida	Representa o evento em si. Relaciona-se N:N com Categoria e 1:N com Resultado.
-Login	Armazena credenciais e tipo de usuário (Administrador ou Atleta).
-Resultado	Guarda tempo e posições gerais e por categoria.
+O código fica em `src/main/java/com/example/runevent`, organizado em camadas:
 
-🧩 Enum Utilizado
-public enum TipoUsuario {
-    ATLETA,
-    ADMINISTRADOR
-}
+| Pacote | Responsabilidade |
+|---|---|
+| `controller` | Endpoints REST (`/api/...`) |
+| `service` | Regras de negócio e validações |
+| `repository` | Acesso a dados (Spring Data JPA) |
+| `model` | Entidades JPA |
+| `dto` / `dto/mapper` | Objetos de entrada/saída e conversão entidade ↔ DTO |
+| `security` | Geração/validação de JWT e filtro de autenticação |
+| `config` | Segurança, CORS e Swagger |
+| `exeptions` | Tratamento global de erros (`@ControllerAdvice`), com respostas JSON padronizadas |
 
-🧰 Scripts Flyway
+## Modelo de domínio
 
-Os scripts estão localizados em:
+| Entidade | Descrição | Relacionamentos |
+|---|---|---|
+| `Login` | Credenciais (e-mail único, senha) e tipo de usuário (`ADM` ou `ATLETA`) | 1:1 com Administrador ou Atleta |
+| `Administrador` | Organizador de corridas | 1:N com Corrida |
+| `Atleta` | Participante (nome, data de nascimento, gênero) | N:1 com Categoria, N:N com Role |
+| `Categoria` | Faixa/categoria de competição | 1:N com Atleta |
+| `Corrida` | Evento (nome, data, local, distância) | N:1 com Administrador |
+| `Participacao` | Inscrição de um atleta em uma corrida (chave composta) | N:1 com Atleta e Corrida |
+| `Resultado` | Tempo, colocação geral e colocação na categoria | N:1 com Atleta e Corrida |
+| `Role` | Perfil de acesso (`ADMIN`, `USER`) | N:N com Atleta |
 
-src/main/resources/db/migration
+O schema é criado e populado com dados de exemplo pelas migrações em `src/main/resources/db/migration` (`V1` a `V18`). O Hibernate não altera o banco (`ddl-auto=none`): toda mudança de schema deve ser feita por uma nova migração Flyway.
 
-🗂️ Scripts criados nesta entrega:
-Versão	Arquivo	Descrição
-V1	create_table_login.sql	Criação da tabela de logins
-V2	insert_login.sql	Inserção de logins de atletas e administradores
-V3	create_table_administrador.sql	Criação da tabela de administradores
-V4	insert_administrador.sql	Inserção de administradores vinculados ao login
-V5	create_table_categoria.sql	Criação da tabela de categorias
-V6	insert_categoria.sql	Inserção das categorias padrão
-V7	create_table_atleta.sql	Criação da tabela de atletas
-V8	insert_atleta.sql	Inserção de atletas vinculados ao login e categoria
-V9	create_table_corrida.sql	Criação da tabela de corridas
-V10	insert_corridas.sql	Inserção das corridas iniciais
-V11	create_table_corrida_categoria.sql	Tabela de relacionamento N:N entre corrida e categoria
-V12	insert_corrida_categoria.sql	Inserção dos vínculos corrida ↔ categoria
-V13	create_table_resultado.sql	Criação da tabela de resultados
-V14	insert_resultado.sql	Inserção de resultados das corridas
+## Endpoints
 
-🗄️ Banco de Dados
+Todos sob o prefixo `/api`. A documentação interativa completa fica no Swagger (veja abaixo).
 
-🛢️ PostgreSQL 17
+| Recurso | Rotas |
+|---|---|
+| Autenticação | `POST /auth/login` |
+| Atletas | `GET /atletas`, `GET /atletas/{id}`, `POST /atletas`, `PUT /atletas/{id}`, `DELETE /atletas/{id}` |
+| Administradores | `GET /administradores`, `GET /administradores/{id}`, `POST /administradores`, `PUT /administradores/{id}`, `DELETE /administradores/{id}` |
+| Categorias | `GET /categorias`, `GET /categorias/{id}`, `POST /categorias`, `PUT /categorias/{id}`, `DELETE /categorias/{id}` |
+| Corridas | `GET /corridas`, `GET /corridas/{id}`, `POST /corridas?idAdm=`, `PUT /corridas/{id}?idAdm=`, `DELETE /corridas/{id}` |
+| Inscrições | `POST /participacoes?idAtleta=&idCorrida=`, `GET /participacoes/corrida/{idCorrida}`, `DELETE /participacoes?idAtleta=&idCorrida=` |
+| Resultados | `POST /resultados?idAtleta=&idCorrida=`, `GET /resultados/corrida/{idCorrida}` |
+| Roles | `GET /roles`, `GET /roles/{id}`, `GET /roles/buscar?descricao=`, `POST /roles`, `PUT /roles/{id}`, `DELETE /roles/{id}` |
 
-Configuração (application.properties):
-server.port=8081
-spring.application.name=runevent
+Datas em JSON usam o formato `dd/MM/yyyy` (fuso `America/Sao_Paulo`).
 
-# Banco de dados PostgreSQL
-spring.datasource.url=jdbc:postgresql://localhost:5432/runevent
-spring.datasource.username=postgres
-spring.datasource.password= .....
-spring.datasource.driver-class-name=org.postgresql.Driver
+## Autenticação
 
-# JPA / Hibernate
-spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
-spring.jpa.hibernate.ddl-auto=validate
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
+1. Faça login com e-mail e senha de um atleta:
 
-# Flyway
-spring.flyway.enabled=true
-spring.flyway.locations=classpath:db/migration
-spring.flyway.baseline-on-migrate=true
-spring.flyway.placeholders.schema=public
-spring.flyway.baseline-version=0
+   ```http
+   POST /api/auth/login
+   Content-Type: application/json
 
+   { "email": "atleta@exemplo.com", "senha": "..." }
+   ```
 
-🔹 ddl-auto=validate garante que o Hibernate verifica se as tabelas do Flyway estão compatíveis com as entidades JPA, sem criar nem alterar nada.
+2. Use o token retornado nas demais requisições:
 
-🔹 Isso assegura que o mapeamento e as migrações estejam sincronizados e consistentes.
+   ```http
+   Authorization: Bearer <token>
+   ```
 
-🧾 Como executar o projeto
+Regras de acesso:
 
-1️⃣ Criar o banco de dados:
-CREATE DATABASE runevent;
+- Públicos: `/api/auth/**`, cadastro de atleta (`POST /api/atletas`) e o Swagger.
+- `GET /api/atletas/**`: perfis `ADMIN` ou `USER`.
+- `PUT` e `DELETE /api/atletas/**`: perfil `ADMIN`.
+- Demais rotas: qualquer usuário autenticado.
 
-2️⃣ Rodar o projeto:
+As senhas são armazenadas com BCrypt. O token expira em 24 h. A chave e a expiração podem ser configuradas pelas propriedades `jwt.secret` e `jwt.expiration` (ms). Em produção, defina sempre uma `jwt.secret` própria.
 
-No terminal, dentro da pasta do projeto:
+## Como executar
 
-mvn clean spring-boot:run
+Pré-requisitos: JDK 21 e PostgreSQL. O Maven não precisa estar instalado, porque o projeto usa o Maven Wrapper.
 
+1. Crie o banco:
 
-O Flyway aplicará automaticamente as migrações (V1 até V14).
+   ```sql
+   CREATE DATABASE runevent;
+   ```
 
-🔍 Verificando no PostgreSQL
+2. Informe as credenciais por variáveis de ambiente. Sem elas, o padrão é `postgres` / `carlos` em `localhost:5432/runevent`:
 
-Após rodar, execute no pgAdmin ou terminal SQL:
+   | Variável | Padrão |
+   |---|---|
+   | `DB_URL` | `jdbc:postgresql://localhost:5432/runevent` |
+   | `DB_USERNAME` | `postgres` |
+   | `DB_PASSWORD` | `carlos` |
 
-SELECT * FROM flyway_schema_history;
-SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';
+3. Suba a aplicação:
 
+   ```bash
+   ./mvnw spring-boot:run        # Linux/macOS
+   mvnw.cmd spring-boot:run      # Windows
+   ```
 
-Isso lista todas as tabelas e confirma que as 14 migrações foram aplicadas com sucesso.
+   O Flyway aplica as migrações automaticamente na inicialização.
 
-🌎 Formato de Datas
+A API sobe na porta **8081**:
 
-As datas foram configuradas em formato brasileiro (dd/MM/yyyy) no Spring Boot, para uso em APIs (JSON, Postman, etc.):
+- Swagger UI: http://localhost:8081/swagger-ui/index.html
+- Especificação OpenAPI: http://localhost:8081/v3/api-docs
 
-spring.jackson.date-format=dd/MM/yyyy
-spring.jackson.locale=pt_BR
-spring.jackson.time-zone=America/Sao_Paulo
+## Testes
 
+```bash
+./mvnw test
+```
 
-⚠️ O PostgreSQL exibe datas no formato padrão YYYY-MM-DD.
-Para visualizar no formato brasileiro dentro do banco, execute:
+- `src/test/.../service`: testes unitários dos services, com repositórios mockados (Mockito).
+- `src/test/.../controller`: testes da camada web com `@WebMvcTest` e MockMvc, com services mockados e filtros de segurança desativados.
+- `RuneventApplicationTests`: sobe o contexto completo e **precisa de um PostgreSQL acessível** com as credenciais configuradas acima.
 
-SET datestyle = "ISO, DMY";
+## Limitações conhecidas
 
-✅ Critérios atendidos da Entrega 2
+- O login (`/api/auth/login`) só autentica **atletas**. Administradores ainda não têm acesso pela API.
+- Atletas criados por `POST /api/atletas` não recebem nenhuma role automaticamente. Por isso, só conseguem acessar as rotas que exigem apenas autenticação, e não as que exigem `ADMIN` ou `USER`.
+- A dependência `spring-boot-starter-validation` está comentada no `pom.xml`, então as anotações `@Valid`/`@NotBlank` ainda não são aplicadas nas requisições.
 
- Entidades JPA mapeadas e validadas
+## Documentação
 
- Relacionamentos configurados corretamente
+Os documentos de especificação e o relatório do projeto ficam em [`docs/`](docs/).
 
- Scripts Flyway (V1__...V14__) criados e testados
+## Autores
 
- Banco PostgreSQL com migrações automatizadas
-
- Configuração de datas e idioma para formato brasileiro
-
- Hibernate validando schema (ddl-auto=validate)
-
- Projeto executando com mvn spring-boot:run
-
-🏁 Observações Finais
-
-Todas as migrações e validações JPA foram executadas com sucesso.
-
-O projeto encontra-se em conformidade com os critérios da Entrega 2 (24/10/2025).
-
-O banco foi versionado via Flyway, com o Hibernate configurado apenas para validação de consistência.
-
-///////
-
-📅 Entrega 3 — Services + Testes Unitários (Cobertura ≥80%)  
-
-👥 Equipe: Carlos Alves, Edson Schmitz
-🗓️ Data da Entrega: 07/11/2025
-🏫 Disciplina: Desenvolvimento de Sistemas Web
-👨‍🏫 Professor: Clávison Zapelini
-
-🧠 Implementação dos Services
-
-Foram criadas e testadas as seguintes classes de serviço:
-
-AdministradorService
-
-AtletaService
-
-CategoriaService
-
-CorridaService
-
-LoginService
-
-ParticipacaoService
-
-ResultadoService
-
-Cada service possui:
-
-Regras de negócio implementadas;
-
-Validações de integridade (entidades relacionadas, e-mail único, etc.);
-
-Métodos de CRUD e lógica de associação entre entidades.
-
-🧪 Testes Unitários
-
-Os testes foram implementados com:
-
-JUnit 5
-
-Mockito (MockBean / @ExtendWith(MockitoExtension.class))
-
-Testes isolados sem dependência de banco real.
-
-💡 Ferramenta de cobertura:
-
-Os testes foram executados e analisados no IntelliJ IDEA, utilizando o relatório de cobertura de código nativo.
-
-📊 Resultados de cobertura:
-Métrica	Resultado
-Classes	100%
-Métodos	80%
-Linhas	90%
-Branches 87%
-
-🧾 Critérios Atendidos
-
-✅ Services implementados com regras de negócio
-✅ Testes unitários completos com Mockito
-✅ Relatório de cobertura ≥ 80%
-✅ Documentação atualizada no README
-
-🏁 Observações Finais
-
-O projeto encontra-se em conformidade total com os critérios da Entrega 3 (07/11/2025).
-Todos os serviços principais foram desenvolvidos, testados e validados com cobertura mínima exigida.
-Os testes unitários garantem a confiabilidade das regras de negócio implementadas.
-
-///////
-
-📅 Entrega 4 — Controllers + Testes de Integração (Cobertura ≥80%)
-
-👥 Equipe: Carlos Alves, Edson Schmitz
-🗓️ Data da Entrega: 11/11/2025
-🏫 Disciplina: Desenvolvimento de Sistemas Web
-👨‍🏫 Professor: Clávison Zapelini
-
-⚙️ Implementação dos Controllers
-
-Foram desenvolvidos os controllers REST para todas as entidades do sistema:
-
-AdministradorController
-
-AtletaController
-
-CategoriaController
-
-CorridaController
-
-ParticipacaoController
-
-ResultadoController
-
-Cada controller foi implementado com:
-
-Endpoints RESTful completos (GET, POST, PUT, DELETE);
-
-Uso de ResponseEntity com os códigos HTTP adequados (200, 201, 204, 400, 404);
-
-Integração direta com os services correspondentes;
-
-Validação de entrada com @Valid e tratamento de erros centralizado;
-
-Prefixo /api/... para todos os endpoints, garantindo padronização das rotas.
-
-🧩 Tratamento Global de Erros
-
-Foi criado o GlobalExceptionHandler com a anotação @ControllerAdvice, responsável por capturar e formatar exceções da aplicação.
-
-Principais recursos:
-
-Tratamento genérico de RuntimeException e Exception;
-
-Respostas padronizadas em formato JSON (ApiError);
-
-Suporte a erros de validação (MethodArgumentNotValidException);
-
-Retorno de mensagens claras para o cliente, com status HTTP apropriado.
-
-🧪 Testes de Integração dos Controllers
-
-Os testes de todos os controllers foram implementados com:
-
-JUnit 5 e Spring Boot Test
-
-MockMvc para simulação de requisições HTTP reais
-
-@WebMvcTest para contexto leve de teste
-
-@MockBean para simular os services
-
-ObjectMapper para serialização/deserialização de JSON
-
-Cada teste valida:
-
-Status HTTP retornado (isOk, isCreated, isNoContent, isBadRequest, etc.);
-
-Estrutura e valores do JSON retornado (jsonPath);
-
-Integração entre camada web e camada de serviço.
-
-📊 Resultados de Cobertura
-
-Os testes foram executados no IntelliJ IDEA, utilizando o relatório de cobertura nativo.
-
-Métrica	Resultado
-Classes	100%
-Métodos	85%
-Linhas	87%
-Branches	83% ✅
-
-Cobertura total acima da meta exigida (≥80%)
-
-✅ Critérios Atendidos
-
-✅ Controllers criados para todas as entidades
-
-✅ Tratamento global de exceções com @ControllerAdvice
-
-✅ Testes automatizados de integração com MockMvc
-
-✅ Retornos JSON e códigos HTTP corretos
-
-✅ Cobertura de testes acima de 80%
-
-✅ Projeto executa e testa sem erros
-
-🏁 Observações Finais
-
-O projeto encontra-se em total conformidade com os critérios da Entrega 4.
-Todos os controllers foram implementados, testados e validados, garantindo o funcionamento completo da API e a confiabilidade das respostas.
-Com cobertura de 83% nas branches, o sistema atinge o nível esperado de qualidade e robustez exigido pela disciplina.
---------
-21/11/2025 — Entrega 5 (documentação Swagger + versão inicial do app React Native)
-
-
-📘 Documentação da API – Swagger / OpenAPI
-
-A API do projeto RunEvent possui documentação completa utilizando Swagger (OpenAPI 3), permitindo visualizar, testar e validar todos os endpoints diretamente pelo navegador.
-
-🔗 Acesso ao Swagger UI
-
-Após iniciar a aplicação Spring Boot, acesse:
-
-http://localhost:8080/swagger-ui/index.html
-
-
-Caso esteja rodando em outro ambiente, ajuste o host/porta conforme necessário.
-
-📄 Especificação OpenAPI
-
-O arquivo de especificação é gerado automaticamente em:
-
-http://localhost:8080/v3/api-docs
-
-
-(Podendo ser utilizado para importar no Postman, Insomnia ou ferramentas de API Design.)
-
-🛠 Tecnologias Utilizadas
-
-Springdoc OpenAPI 2.x
-
-Swagger UI embutido no projeto
-
-Configuração automática com Spring Boot 3+
-
-Geração automática de documentação para Controllers, DTOs e Responses
-
-🚀 Recursos Documentados
-
-A documentação inclui:
-
-Endpoints REST de Atletas
-
-DTOs de entrada e saída
-
-Modelos de erro
-
-Parâmetros e validações
-
-Exemplos automáticos
-
-Possibilidade de testar requisições direto pela interface
-
-🔒 Autenticação (JWT)
-
-A API já está preparada para receber autenticação JWT (em implementação).
-Assim que os endpoints forem protegidos, será possível utilizar o botão Authorize no Swagger UI para inserir o token.
-
-
-Link do slide da apresentação final: https://www.canva.com/design/DAG57W8HVsU/VC8hgyvdZZnwjmEpsal4Ww/edit?utm_content=DAG57W8HVsU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+Carlos Alves e Edson Schmitz

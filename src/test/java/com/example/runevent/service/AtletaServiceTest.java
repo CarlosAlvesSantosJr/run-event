@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +28,7 @@ class AtletaServiceTest {
     @Mock private LoginRepository loginRepository;
     @Mock private CategoriaRepository categoriaRepository;
     @Mock private LoginService loginService;
+    @Mock private PasswordEncoder passwordEncoder;
 
     @InjectMocks private AtletaService atletaService;
 
@@ -38,6 +40,7 @@ class AtletaServiceTest {
     void setUp() {
         login = new Login();
         login.setEmail("teste@email.com");
+        login.setSenha("123456");
 
         categoria = new Categoria();
         categoria.setIdCategoria(1L);
@@ -55,12 +58,14 @@ class AtletaServiceTest {
     void deveCriarAtletaComSucesso() {
         doNothing().when(loginService).validateEmailUniqueness(anyString());
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
+        when(passwordEncoder.encode("123456")).thenReturn("senha-criptografada");
         when(atletaRepository.save(any())).thenReturn(atleta);
 
         Atleta salvo = atletaService.create(atleta);
 
         assertNotNull(salvo);
         assertEquals("João", salvo.getNome());
+        assertEquals("senha-criptografada", salvo.getLogin().getSenha());
         verify(loginRepository, times(1)).save(any(Login.class));
         verify(atletaRepository, times(1)).save(any(Atleta.class));
     }
