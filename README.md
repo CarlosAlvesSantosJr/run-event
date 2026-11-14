@@ -2,6 +2,10 @@
 
 API REST para gerenciamento de corridas de rua: cadastro de atletas, organizadores (administradores), categorias, corridas, inscrições e resultados.
 
+📚 **Documentação completa em [`docs/`](docs/README.md)**: arquitetura, diagramas UML e ER, referência da API, segurança, telas e testes.
+
+![Swagger UI do RunEvent](docs/img/04-authorize-jwt.png)
+
 ## Stack
 
 - Java 21 + Spring Boot 3.2
@@ -56,7 +60,7 @@ Todos sob o prefixo `/api`. A documentação interativa completa fica no Swagger
 | Resultados | `POST /resultados?idAtleta=&idCorrida=`, `GET /resultados/corrida/{idCorrida}` |
 | Roles | `GET /roles`, `GET /roles/{id}`, `GET /roles/buscar?descricao=`, `POST /roles`, `PUT /roles/{id}`, `DELETE /roles/{id}` |
 
-Datas em JSON usam o formato `dd/MM/yyyy` (fuso `America/Sao_Paulo`).
+Datas em JSON usam o formato ISO `yyyy-MM-dd` (ex.: `"1995-05-10"`). Detalhes e exemplos em [docs/04-api.md](docs/04-api.md).
 
 ## Autenticação
 
@@ -113,7 +117,7 @@ Pré-requisitos: JDK 21 e PostgreSQL. O Maven não precisa estar instalado, porq
 
 A API sobe na porta **8081**:
 
-- Swagger UI: http://localhost:8081/swagger-ui/index.html
+- Swagger UI: http://localhost:8081/swagger-ui/index.html. Faça login em `/api/auth/login` e cole o token no botão **Authorize** (passo a passo em [docs/06-telas.md](docs/06-telas.md)).
 - Especificação OpenAPI: http://localhost:8081/v3/api-docs
 
 ## Testes
@@ -128,13 +132,28 @@ A API sobe na porta **8081**:
 
 ## Limitações conhecidas
 
-- O login (`/api/auth/login`) só autentica **atletas**. Administradores ainda não têm acesso pela API.
-- Atletas criados por `POST /api/atletas` não recebem nenhuma role automaticamente. Por isso, só conseguem acessar as rotas que exigem apenas autenticação, e não as que exigem `ADMIN` ou `USER`.
-- A dependência `spring-boot-starter-validation` está comentada no `pom.xml`, então as anotações `@Valid`/`@NotBlank` ainda não são aplicadas nas requisições.
+As principais (lista completa em [docs/08-limitacoes-e-melhorias.md](docs/08-limitacoes-e-melhorias.md)):
+
+- As respostas JSON incluem o campo `login.senha`. Isso expõe o hash BCrypt dos atletas e a senha em texto puro dos administradores, que também não é criptografada ao salvar.
+- Só as rotas de `/api/atletas` exigem perfil. As demais aceitam qualquer usuário autenticado.
+- O login (`/api/auth/login`) só autentica **atletas**, e atletas novos não recebem role automaticamente.
+- A dependência `spring-boot-starter-validation` está comentada no `pom.xml`, então `@Valid`/`@NotBlank` não são aplicados.
+- Recurso inexistente responde 400, e não 404.
 
 ## Documentação
 
-Os documentos de especificação e o relatório do projeto ficam em [`docs/`](docs/).
+| Documento | Conteúdo |
+|---|---|
+| [Visão geral](docs/01-visao-geral.md) | Atores, casos de uso, requisitos e regras de negócio |
+| [Arquitetura](docs/02-arquitetura.md) | Camadas, componentes, fluxo de requisição e implantação |
+| [Modelo de dados](docs/03-modelo-de-dados.md) | Diagrama de classes UML, diagrama ER e migrações |
+| [Referência da API](docs/04-api.md) | Endpoints com exemplos reais |
+| [Segurança](docs/05-seguranca.md) | JWT, perfis e matriz de permissões |
+| [Telas](docs/06-telas.md) | Prints do Swagger UI passo a passo |
+| [Testes](docs/07-testes.md) | Estratégia e execução |
+| [Limitações e melhorias](docs/08-limitacoes-e-melhorias.md) | Problemas conhecidos e próximos passos |
+
+A especificação e o relatório originais da disciplina também estão em [`docs/`](docs/).
 
 ## Autores
 
